@@ -1,0 +1,46 @@
+[package]
+name = "y2m"
+edition.workspace = true
+version.workspace = true
+publish = false
+
+[workspace]
+members = [ "crates/client-core",
+    "crates/common",
+    "crates/server",
+]
+resolver = "2"
+
+[workspace.package]
+edition = "2021"
+version = "0.1.0"
+
+[workspace.dependencies]
+anyhow = "1"
+async-trait = "0.1"
+clap = { version = "4", features = ["derive"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "2"
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "sync", "net", "time", "process"] }
+tracing = "0.1"
+uuid = { version = "1", features = ["serde", "v4"] }
+
+[dependencies]
+anyhow.workspace = true
+async-trait.workspace = true
+clap.workspace = true
+serde_json.workspace = true
+sha2 = "0.11.0"
+tokio.workspace = true
+tracing.workspace = true
+tracing-subscriber = { version = "0.3.23", features = ["fmt", "json"] }
+uuid.workspace = true
+y2m-client-core = { path = "crates/client-core" }
+y2m-common = { path = "crates/common" }
+
+[dev-dependencies]
+serde_json.workspace = true
+serial_test = "3.4.0"
+uuid.workspace = true
+y2m-server = { path = "crates/server" }

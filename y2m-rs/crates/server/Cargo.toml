@@ -1,0 +1,17 @@
+[package]
+name = "y2m-server"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+anyhow.workspace = true
+axum = { version = "0.8.9", features = ["ws"] }
+futures-util = { version = "0.3.31", features = ["sink"] }
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+tokio.workspace = true
+tracing.workspace = true
+tracing-subscriber = { version = "0.3.23", features = ["fmt", "json"] }
+uuid.workspace = true
+y2m-common = { path = "../common" }

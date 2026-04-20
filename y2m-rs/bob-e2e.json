@@ -1,0 +1,7 @@
+{
+  "serverUrl": "ws://127.0.0.1:8080/ws",
+  "groupName": "group1",
+  "clientName": "bob",
+  "token": null,
+  "heartbeatIntervalOverrideSec": null
+}

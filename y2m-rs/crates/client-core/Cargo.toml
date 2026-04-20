@@ -1,0 +1,17 @@
+[package]
+name = "y2m-client-core"
+edition.workspace = true
+version.workspace = true
+
+[dependencies]
+anyhow.workspace = true
+async-trait.workspace = true
+futures-util = { version = "0.3.31", features = ["sink"] }
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+tokio.workspace = true
+tokio-tungstenite = "0.29.0"
+tracing.workspace = true
+uuid.workspace = true
+y2m-common = { path = "../common" }
