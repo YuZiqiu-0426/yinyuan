@@ -61,9 +61,17 @@ fn primary_mac() -> String {
     {
         mac_windows_getmac()
     }
-    #[cfg(not(windows))]
+    #[cfg(target_os = "macos")]
+    {
+        mac_macos_ifconfig()
+    }
+    #[cfg(target_os = "linux")]
     {
         mac_linux_sys_class_net()
+    }
+    #[cfg(not(any(windows, target_os = "macos", target_os = "linux")))]
+    {
+        "unknown".to_string()
     }
 }
 
@@ -97,7 +105,55 @@ fn mac_windows_getmac() -> String {
     }
 }
 
-#[cfg(not(windows))]
+#[cfg(target_os = "macos")]
+fn mac_macos_ifconfig() -> String {
+    use std::process::Command;
+    let output = match Command::new("/sbin/ifconfig").output() {
+        Ok(o) if o.status.success() => o.stdout,
+        _ => return "unknown".to_string(),
+    };
+    let text = String::from_utf8_lossy(&output);
+    parse_macos_ifconfig_ether(&text).unwrap_or_else(|| "unknown".to_string())
+}
+
+/// Parse `ifconfig` output: each interface block has `name: flags=...` then indented `ether aa:bb:...`.
+#[cfg(target_os = "macos")]
+fn parse_macos_ifconfig_ether(text: &str) -> Option<String> {
+    let mut current_iface = String::new();
+    for line in text.lines() {
+        let line = line.trim_end();
+        if !line.starts_with('\t') && line.contains(':') && line.contains("flags=") {
+            if let Some(colon) = line.find(':') {
+                current_iface = line[..colon].trim().to_string();
+            }
+            continue;
+        }
+        let trimmed = line.trim();
+        let Some(rest) = trimmed.strip_prefix("ether ") else { continue };
+        if current_iface == "lo0" || current_iface.is_empty() {
+            continue;
+        }
+        let token = rest.split_whitespace().next()?;
+        if !mac_string_is_valid_colon_hex(token) {
+            continue;
+        }
+        return Some(token.to_uppercase());
+    }
+    None
+}
+
+#[cfg(target_os = "macos")]
+fn mac_string_is_valid_colon_hex(s: &str) -> bool {
+    if s.matches(':').count() != 5 {
+        return false;
+    }
+    if s.eq_ignore_ascii_case("00:00:00:00:00:00") {
+        return false;
+    }
+    s.split(':').all(|p| p.len() == 2 && u8::from_str_radix(p, 16).is_ok())
+}
+
+#[cfg(target_os = "linux")]
 fn mac_linux_sys_class_net() -> String {
     use std::fs;
     let Ok(entries) = fs::read_dir("/sys/class/net") else {
@@ -144,5 +200,26 @@ fn os_label() -> &'static str {
         "macos"
     } else {
         "other"
+    }
+}
+
+#[cfg(all(test, target_os = "macos"))]
+mod macos_parse_tests {
+    use super::parse_macos_ifconfig_ether;
+
+    #[test]
+    fn skips_lo0_and_returns_first_en_ether() {
+        let sample = "\
+lo0: flags=8049<UP,LOOPBACK,RUNNING,MULTICAST> mtu 16384
+\tinet 127.0.0.1 netmask 0xff000000
+en0: flags=8863<UP,BROADCAST,RUNNING> mtu 1500
+\tether aa:bb:cc:dd:ee:ff
+en1: flags=8863<UP,BROADCAST,RUNNING> mtu 1500
+\tether 11:22:33:44:55:66
+";
+        assert_eq!(
+            parse_macos_ifconfig_ether(sample).as_deref(),
+            Some("AA:BB:CC:DD:EE:FF")
+        );
     }
 }
