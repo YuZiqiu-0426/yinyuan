@@ -1,2 +1,17 @@
-taregt/
-taregt*/
+# Rust 构建输出
+target/
+target*/
+
+# 打包 / 分发归档
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.tar.bz2
+*.tbz2
+*.7z
+*.rar
+
+# 常见打包输出目录
+dist/
+release/
