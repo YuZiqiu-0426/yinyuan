@@ -7,7 +7,7 @@ use y2m_common::{
     HeartbeatPacket, HeartbeatPayload, InitPacket, InitPayload, Packet, PacketKind,
 };
 
-use crate::{config::ClientConfig, session::ClientIdentity};
+use crate::{config::ClientConfig, sender_envelope::attach_sender_envelope, session::ClientIdentity};
 
 pub fn build_init_packet(config: &ClientConfig) -> InitPacket {
     Packet::new(
@@ -269,6 +269,7 @@ pub fn build_event_packet(
     content: Value,
     metadata: Value,
 ) -> EventPacket {
+    let metadata = attach_sender_envelope(metadata);
     Packet::new(
         PacketKind::Event,
         Uuid::new_v4().to_string(),

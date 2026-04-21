@@ -10,7 +10,7 @@ use y2m_common::{AckPacket, AckStatus, ErrorCode, ErrorPacket, EventPacket, Even
 use crate::{
     file_store::{FileTransferFailureReason, LocalFileTransfer},
     printer::cprintln,
-    util::{ensure_unique_path, format_bytes, parse_file_id, sha256_hex},
+    util::{ensure_unique_path, format_bytes, format_sender_context_line, parse_file_id, sha256_hex},
 };
 
 use super::ConsoleState;
@@ -65,6 +65,9 @@ impl ConsoleState {
     pub(crate) fn handle_file_offer(&self, ctx: &PluginContext, packet: &EventPacket) -> anyhow::Result<()> {
         let info = extract_file_offer_info(ctx, packet, &self.downloads_dir)?;
         print_file_offer_notice(&info);
+        if let Some(ctx) = format_sender_context_line(&packet.payload.metadata) {
+            cprintln!("  发送方终端: {ctx}");
+        }
         self.insert_pending_offer(
             info.file_id,
             LocalFileTransfer::pending_offer(

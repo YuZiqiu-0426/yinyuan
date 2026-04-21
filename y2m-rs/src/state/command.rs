@@ -6,7 +6,7 @@ use y2m_common::EventPacket;
 #[cfg(not(windows))]
 use y2m_common::{default_shell_arg, default_shell_program};
 
-use crate::printer::cprintln;
+use crate::{printer::cprintln, util::format_sender_context_line};
 
 use super::ConsoleState;
 
@@ -19,6 +19,9 @@ impl ConsoleState {
             target_client.as_deref().unwrap_or("unknown"),
             timeout_sec, command
         );
+        if let Some(ctx) = format_sender_context_line(&packet.payload.metadata) {
+            cprintln!("  发送方终端: {ctx}");
+        }
         let (exit_code, stdout, stderr, duration_ms) =
             execute_command(&command, timeout_sec).await;
         let result = build_command_result_packet(

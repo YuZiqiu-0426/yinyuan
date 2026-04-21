@@ -11,8 +11,8 @@ use y2m_common::{AckStatus, BinaryChunkHeader, EventType, PacketKind};
 mod support;
 
 use support::{
-    connect_runtime, recv_event, spawn_dispatch_loop, spawn_server, CaptureEventPlugin,
-    ReceivedEvent,
+    assert_metadata_superset, assert_sender_envelope_keys, connect_runtime, recv_event, spawn_dispatch_loop,
+    spawn_server, CaptureEventPlugin,
 };
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
@@ -39,20 +39,23 @@ async fn file_offer_unicast_end_to_end() -> anyhow::Result<()> {
     alice_runtime.connection().send_json_packet(&packet)?;
 
     let received = recv_event(&mut bob_rx).await?;
-    assert_eq!(
-        received,
-        ReceivedEvent {
-            group: "group1".to_string(),
-            from: "alice".to_string(),
-            event_type: EventType::FileOffer,
-            content: serde_json::Value::Null,
-            metadata: serde_json::json!({
-                "fileId": file_id, "fileName": "hello.txt", "fileSize": 11,
-                "contentType": "text/plain", "sha256": "abc123",
-                "chunkSize": 262144, "totalChunks": 1
-            }),
-        }
+    assert_eq!(received.group, "group1");
+    assert_eq!(received.from, "alice");
+    assert_eq!(received.event_type, EventType::FileOffer);
+    assert_eq!(received.content, serde_json::Value::Null);
+    assert_metadata_superset(
+        &received.metadata,
+        serde_json::json!({
+            "fileId": file_id,
+            "fileName": "hello.txt",
+            "fileSize": 11,
+            "contentType": "text/plain",
+            "sha256": "abc123",
+            "chunkSize": 262144,
+            "totalChunks": 1
+        }),
     );
+    assert_sender_envelope_keys(&received.metadata);
 
     bob_dispatch.abort();
     server_task.abort();

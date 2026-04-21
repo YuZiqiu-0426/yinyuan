@@ -17,6 +17,8 @@ struct ClientCommandOutcome {
     stdout: String,
     stderr: String,
     duration_ms: u64,
+    /// Formatted `ip=… mac=… user=… os=…` from peer metadata when present.
+    sender_ctx: Option<String>,
 }
 
 struct CommandBatch {
@@ -40,6 +42,7 @@ impl CommandResultAggregator {
         stdout: String,
         stderr: String,
         duration_ms: u64,
+        sender_ctx: Option<String>,
     ) -> u64 {
         let gen = self.debounce_generation.entry(request_id.to_string()).or_insert(0);
         *gen += 1;
@@ -58,6 +61,7 @@ impl CommandResultAggregator {
                 stdout,
                 stderr,
                 duration_ms,
+                sender_ctx,
             },
         );
         current
@@ -94,11 +98,14 @@ impl ConsoleState {
         stdout: String,
         stderr: String,
         duration_ms: u64,
+        sender_ctx: Option<String>,
     ) -> u64 {
         self.command_results
             .lock()
             .expect("lock command result aggregation")
-            .merge_and_bump_generation(request_id, group, client, exit_code, stdout, stderr, duration_ms)
+            .merge_and_bump_generation(
+                request_id, group, client, exit_code, stdout, stderr, duration_ms, sender_ctx,
+            )
     }
 
     pub(crate) fn flush_command_results_if_current(&self, request_id: &str, expected_gen: u64) {
@@ -151,6 +158,9 @@ fn print_one_client_outcome(group: &str, client: &str, r: &ClientCommandOutcome)
         "[{group}][{client}] 命令结果 (exit={}, {}ms)",
         r.exit_code, r.duration_ms
     );
+    if let Some(ref s) = r.sender_ctx {
+        cprintln!("  执行方: {s}");
+    }
     if !r.stdout.is_empty() {
         cprintln!("  {}", r.stdout.replace('\n', "\n  "));
     }
@@ -166,8 +176,8 @@ mod tests {
     #[test]
     fn aggregator_merge_bumps_generation_and_take_respects_stale() {
         let mut a = CommandResultAggregator::default();
-        let g1 = a.merge_and_bump_generation("r1", "g", "alice", 0, "a".into(), "".into(), 1);
-        let g2 = a.merge_and_bump_generation("r1", "g", "bob", 0, "b".into(), "".into(), 2);
+        let g1 = a.merge_and_bump_generation("r1", "g", "alice", 0, "a".into(), "".into(), 1, None);
+        let g2 = a.merge_and_bump_generation("r1", "g", "bob", 0, "b".into(), "".into(), 2, None);
         assert_eq!(g1, 1);
         assert_eq!(g2, 2);
         assert!(a.take_if_current("r1", 1).is_none());

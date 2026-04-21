@@ -5,7 +5,10 @@ use y2m_common::EventType;
 
 mod support;
 
-use support::{connect_runtime, recv_event, spawn_dispatch_loop, spawn_server, CaptureEventPlugin, ReceivedEvent};
+use support::{
+    assert_metadata_superset, assert_sender_envelope_keys, connect_runtime, recv_event, spawn_dispatch_loop,
+    spawn_server, CaptureEventPlugin,
+};
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
 async fn text_unicast_end_to_end() -> anyhow::Result<()> {
@@ -29,18 +32,15 @@ async fn text_unicast_end_to_end() -> anyhow::Result<()> {
     bob_runtime.send_text(Some("group1".to_string()), Some("alice".to_string()), "hello from bob")?;
 
     let received = recv_event(&mut alice_rx).await?;
-    assert_eq!(
-        received,
-        ReceivedEvent {
-            group: "group1".to_string(),
-            from: "bob".to_string(),
-            event_type: EventType::Text,
-            content: serde_json::json!("hello from bob"),
-            metadata: serde_json::json!({
-                "contentType": "text/plain"
-            }),
-        }
+    assert_eq!(received.group, "group1");
+    assert_eq!(received.from, "bob");
+    assert_eq!(received.event_type, EventType::Text);
+    assert_eq!(received.content, serde_json::json!("hello from bob"));
+    assert_metadata_superset(
+        &received.metadata,
+        serde_json::json!({ "contentType": "text/plain" }),
     );
+    assert_sender_envelope_keys(&received.metadata);
 
     alice_dispatch.abort();
     server_task.abort();
@@ -69,18 +69,15 @@ async fn text_broadcast_end_to_end() -> anyhow::Result<()> {
     alice_runtime.send_text(None, None, "hello everyone")?;
 
     let received = recv_event(&mut bob_rx).await?;
-    assert_eq!(
-        received,
-        ReceivedEvent {
-            group: "group1".to_string(),
-            from: "alice".to_string(),
-            event_type: EventType::Text,
-            content: serde_json::json!("hello everyone"),
-            metadata: serde_json::json!({
-                "contentType": "text/plain"
-            }),
-        }
+    assert_eq!(received.group, "group1");
+    assert_eq!(received.from, "alice");
+    assert_eq!(received.event_type, EventType::Text);
+    assert_eq!(received.content, serde_json::json!("hello everyone"));
+    assert_metadata_superset(
+        &received.metadata,
+        serde_json::json!({ "contentType": "text/plain" }),
     );
+    assert_sender_envelope_keys(&received.metadata);
 
     bob_dispatch.abort();
     server_task.abort();

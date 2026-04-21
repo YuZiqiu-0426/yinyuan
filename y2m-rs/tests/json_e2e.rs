@@ -6,7 +6,10 @@ use y2m_common::EventType;
 
 mod support;
 
-use support::{connect_runtime, json_message, recv_event, spawn_dispatch_loop, spawn_server, CaptureEventPlugin, ReceivedEvent};
+use support::{
+    assert_metadata_superset, assert_sender_envelope_keys, connect_runtime, json_message, recv_event,
+    spawn_dispatch_loop, spawn_server, CaptureEventPlugin,
+};
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
 async fn json_unicast_end_to_end() -> anyhow::Result<()> {
@@ -36,18 +39,15 @@ async fn json_unicast_end_to_end() -> anyhow::Result<()> {
     bob_runtime.connection().send_json_packet(&packet)?;
 
     let received = recv_event(&mut alice_rx).await?;
-    assert_eq!(
-        received,
-        ReceivedEvent {
-            group: "group1".to_string(),
-            from: "bob".to_string(),
-            event_type: EventType::Json,
-            content: json_message("hello json"),
-            metadata: serde_json::json!({
-                "contentType": "application/json"
-            }),
-        }
+    assert_eq!(received.group, "group1");
+    assert_eq!(received.from, "bob");
+    assert_eq!(received.event_type, EventType::Json);
+    assert_eq!(received.content, json_message("hello json"));
+    assert_metadata_superset(
+        &received.metadata,
+        serde_json::json!({ "contentType": "application/json" }),
     );
+    assert_sender_envelope_keys(&received.metadata);
 
     alice_dispatch.abort();
     server_task.abort();
@@ -82,18 +82,15 @@ async fn json_broadcast_end_to_end() -> anyhow::Result<()> {
     alice_runtime.connection().send_json_packet(&packet)?;
 
     let received = recv_event(&mut bob_rx).await?;
-    assert_eq!(
-        received,
-        ReceivedEvent {
-            group: "group1".to_string(),
-            from: "alice".to_string(),
-            event_type: EventType::Json,
-            content: json_message("broadcast json"),
-            metadata: serde_json::json!({
-                "contentType": "application/json"
-            }),
-        }
+    assert_eq!(received.group, "group1");
+    assert_eq!(received.from, "alice");
+    assert_eq!(received.event_type, EventType::Json);
+    assert_eq!(received.content, json_message("broadcast json"));
+    assert_metadata_superset(
+        &received.metadata,
+        serde_json::json!({ "contentType": "application/json" }),
     );
+    assert_sender_envelope_keys(&received.metadata);
 
     bob_dispatch.abort();
     server_task.abort();

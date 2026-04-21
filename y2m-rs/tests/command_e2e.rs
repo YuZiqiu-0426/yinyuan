@@ -6,7 +6,10 @@ use y2m_common::EventType;
 
 mod support;
 
-use support::{connect_runtime, recv_event, spawn_dispatch_loop, spawn_server, CaptureEventPlugin, CommandResponderPlugin, ReceivedEvent};
+use support::{
+    assert_metadata_superset, assert_sender_envelope_keys, connect_runtime, recv_event, spawn_dispatch_loop,
+    spawn_server, CaptureEventPlugin, CommandResponderPlugin,
+};
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
 async fn command_result_end_to_end() -> anyhow::Result<()> {
@@ -46,22 +49,21 @@ async fn command_result_end_to_end() -> anyhow::Result<()> {
     alice_connection.send_json_packet(&command_packet)?;
 
     let received = recv_event(&mut alice_rx).await?;
-    assert_eq!(
-        received,
-        ReceivedEvent {
-            group: "group1".to_string(),
-            from: "bob".to_string(),
-            event_type: EventType::CommandResult,
-            content: serde_json::Value::Null,
-            metadata: serde_json::json!({
-                "requestId": command_packet.request_id,
-                "exitCode": 0,
-                "stdout": "echo: whoami",
-                "stderr": "",
-                "durationMs": 1
-            }),
-        }
+    assert_eq!(received.group, "group1");
+    assert_eq!(received.from, "bob");
+    assert_eq!(received.event_type, EventType::CommandResult);
+    assert_eq!(received.content, serde_json::Value::Null);
+    assert_metadata_superset(
+        &received.metadata,
+        serde_json::json!({
+            "requestId": command_packet.request_id,
+            "exitCode": 0,
+            "stdout": "echo: whoami",
+            "stderr": "",
+            "durationMs": 1
+        }),
     );
+    assert_sender_envelope_keys(&received.metadata);
 
     alice_dispatch.abort();
     bob_dispatch.abort();

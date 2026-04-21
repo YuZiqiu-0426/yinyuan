@@ -77,6 +77,19 @@ pub(crate) fn guess_content_type(path: &Path) -> String {
 }
 
 /// Strip ANSI OSC/CSI and non-printable controls (keep `\n` / `\t`) for safe console output.
+/// Compact line from event metadata keys set by `y2m-client-core` (`senderIp`, `senderMac`, `senderUser`, `senderOs`).
+pub(crate) fn format_sender_context_line(meta: &serde_json::Value) -> Option<String> {
+    let o = meta.as_object()?;
+    if !o.contains_key("senderIp") {
+        return None;
+    }
+    let ip = o.get("senderIp").and_then(|v| v.as_str()).unwrap_or("-");
+    let mac = o.get("senderMac").and_then(|v| v.as_str()).unwrap_or("-");
+    let user = o.get("senderUser").and_then(|v| v.as_str()).unwrap_or("-");
+    let os = o.get("senderOs").and_then(|v| v.as_str()).unwrap_or("-");
+    Some(format!("ip={ip} mac={mac} user={user} os={os}"))
+}
+
 pub(crate) fn sanitize_terminal_controls(input: &str) -> String {
     let mut out = String::with_capacity(input.len());
     let mut iter = input.chars().peekable();

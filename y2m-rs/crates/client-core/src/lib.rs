@@ -5,6 +5,7 @@ pub mod core;
 pub mod error;
 pub mod plugin;
 pub mod protocol;
+mod sender_envelope;
 pub mod session;
 
 pub use command_bus::{

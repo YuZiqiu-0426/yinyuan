@@ -22,6 +22,23 @@ pub struct ReceivedEvent {
     pub metadata: Value,
 }
 
+/// Assert every key in `required` matches `meta`; extra keys (e.g. sender envelope) are allowed.
+pub fn assert_metadata_superset(meta: &Value, required: Value) {
+    let m = meta.as_object().expect("metadata must be object");
+    let req = required.as_object().expect("required must be object");
+    for (k, ev) in req {
+        let av = m.get(k).unwrap_or_else(|| panic!("missing metadata key {k}"));
+        assert_eq!(av, ev, "metadata[{k}]");
+    }
+}
+
+pub fn assert_sender_envelope_keys(meta: &Value) {
+    let m = meta.as_object().expect("metadata object");
+    for k in ["senderIp", "senderMac", "senderUser", "senderOs"] {
+        assert!(m.contains_key(k), "expected sender envelope key {k}");
+    }
+}
+
 pub struct CaptureEventPlugin {
     pub tx: mpsc::UnboundedSender<ReceivedEvent>,
     pub supported: &'static [EventType],
