@@ -3,7 +3,7 @@ use std::{fs, path::Path};
 use uuid::Uuid;
 use y2m_client_core::{
     build_ack_packet, build_file_abort_event_packet, build_file_accept_event_packet,
-    build_file_reject_event_packet, ClientRuntime, PluginContext,
+    build_file_reject_event_packet, ClientConnection, ClientIdentity, ClientRuntime, PluginContext,
 };
 use y2m_common::{AckPacket, AckStatus, ErrorCode, ErrorPacket, EventPacket, EventType, PacketKind};
 
@@ -53,9 +53,18 @@ pub(crate) fn extract_file_offer_info(
     })
 }
 
+fn print_file_offer_notice(info: &FileOfferInfo) {
+    cprintln!(
+        "收到文件请求: id={}, from=[{}][{}], name={}, size={} bytes, 保存到={}",
+        info.file_id, info.source_group, info.source_client,
+        info.file_name, info.expected_size, info.save_path.display()
+    );
+}
+
 impl ConsoleState {
     pub(crate) fn handle_file_offer(&self, ctx: &PluginContext, packet: &EventPacket) -> anyhow::Result<()> {
         let info = extract_file_offer_info(ctx, packet, &self.downloads_dir)?;
+        print_file_offer_notice(&info);
         self.insert_pending_offer(
             info.file_id,
             LocalFileTransfer::pending_offer(
@@ -64,24 +73,33 @@ impl ConsoleState {
                 info.expected_size, info.expected_sha256, info.total_chunks,
             ),
         );
-        cprintln!(
-            "收到文件请求: id={}, from=[{}][{}], name={}, size={} bytes, 保存到={}",
-            info.file_id, info.source_group, info.source_client,
-            info.file_name, info.expected_size, info.save_path.display()
-        );
-        cprintln!("输入 /accept {} 接收，或 /reject {} 拒绝", info.file_id, info.file_id);
-        cprintln!("也可以输入 /files 查看当前文件列表");
+        if self.download_dir_configured {
+            self.send_accept_for_pending(&ctx.identity, &ctx.connection, info.file_id)?;
+            cprintln!("（已在配置中指定下载目录，无需手动 /accept）");
+        } else {
+            cprintln!("输入 /accept {} 接收，或 /reject {} 拒绝", info.file_id, info.file_id);
+            cprintln!("也可以输入 /files 查看当前文件列表");
+        }
         Ok(())
     }
 
     pub(crate) fn accept_pending_offer(&self, runtime: &ClientRuntime, file_id: Uuid) -> anyhow::Result<bool> {
+        self.send_accept_for_pending(runtime.identity(), runtime.connection(), file_id)
+    }
+
+    pub(crate) fn send_accept_for_pending(
+        &self,
+        identity: &ClientIdentity,
+        connection: &ClientConnection,
+        file_id: Uuid,
+    ) -> anyhow::Result<bool> {
         let Some(offer) = self.move_pending_offer_to_incoming(file_id) else { return Ok(false) };
         let save_path = offer.save_path.as_ref().expect("pending offer save path");
         let accept = build_file_accept_event_packet(
-            runtime.identity(), Some(offer.peer_group), Some(offer.peer_client),
+            identity, Some(offer.peer_group), Some(offer.peer_client),
             file_id, save_path.display().to_string(),
         );
-        runtime.connection().send_json_packet(&accept)?;
+        connection.send_json_packet(&accept)?;
         cprintln!("已接受文件: id={}, 保存到={}, 等待分片传输...", file_id, save_path.display());
         Ok(true)
     }

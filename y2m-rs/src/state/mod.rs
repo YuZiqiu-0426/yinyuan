@@ -22,6 +22,8 @@ mod outgoing;
 #[derive(Default)]
 pub(crate) struct ConsoleState {
     pub(crate) downloads_dir: PathBuf,
+    /// Set when config explicitly provides `download_dir` (`y2m init --download-dir` / JSON). Incoming offers auto-accept.
+    pub(crate) download_dir_configured: bool,
     pub(crate) files: Mutex<LocalFileStore>,
     pub(crate) reconnect_replays: Mutex<Vec<String>>,
 }
@@ -29,8 +31,11 @@ pub(crate) struct ConsoleState {
 impl ConsoleState {
     pub(crate) fn new(downloads_dir: Option<PathBuf>) -> Self {
         let base = std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."));
+        let download_dir_configured = downloads_dir.is_some();
+        let downloads_dir = downloads_dir.unwrap_or_else(|| base.join("downloads"));
         Self {
-            downloads_dir: downloads_dir.unwrap_or_else(|| base.join("downloads")),
+            downloads_dir,
+            download_dir_configured,
             files: Mutex::new(LocalFileStore::default()),
             reconnect_replays: Mutex::new(Vec::new()),
         }

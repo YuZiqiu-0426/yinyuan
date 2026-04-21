@@ -39,7 +39,6 @@ async fn cli_chat_out_of_order_chunk_fails_and_aborts_transfer() -> anyhow::Resu
 
     let offered_id = bob.wait_for_match(Duration::from_secs(10), parse_file_offer_line)?;
     assert_eq!(offered_id, file_id.to_string());
-    bob.write_line(&format!("/accept {offered_id}"))?;
     bob.wait_for_contains("已接受文件:", Duration::from_secs(10))?;
 
     loop {
@@ -121,7 +120,6 @@ async fn cli_chat_duplicate_chunk_fails_and_aborts_transfer() -> anyhow::Result<
 
     let offered_id = bob.wait_for_match(Duration::from_secs(10), parse_file_offer_line)?;
     assert_eq!(offered_id, file_id.to_string());
-    bob.write_line(&format!("/accept {offered_id}"))?;
     bob.wait_for_contains("已接受文件:", Duration::from_secs(10))?;
 
     loop {
@@ -205,7 +203,6 @@ async fn cli_chat_total_chunks_mismatch_fails_and_aborts_transfer() -> anyhow::R
 
     let offered_id = bob.wait_for_match(Duration::from_secs(10), parse_file_offer_line)?;
     assert_eq!(offered_id, file_id.to_string());
-    bob.write_line(&format!("/accept {offered_id}"))?;
     bob.wait_for_contains("已接受文件:", Duration::from_secs(10))?;
 
     loop {

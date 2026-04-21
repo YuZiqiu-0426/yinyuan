@@ -41,10 +41,8 @@ async fn cli_chat_file_accept_end_to_end() -> anyhow::Result<()> {
     alice.write_line(&format!("/file {}", sample_arg))?;
     alice.wait_for_contains("sample.txt", Duration::from_secs(15))?;
 
-    let file_id = bob.wait_for_match(Duration::from_secs(60), parse_file_offer_line)?;
-    bob.write_line("/files")?;
-    bob.wait_for_contains(&file_id, Duration::from_secs(10))?;
-    bob.write_line(&format!("/accept {file_id}"))?;
+    let _file_id = bob.wait_for_match(Duration::from_secs(60), parse_file_offer_line)?;
+    bob.wait_for_contains("已接受文件", Duration::from_secs(15))?;
     alice.wait_for_contains("file_accept", Duration::from_secs(15))?;
     bob.wait_for_contains("file_complete", Duration::from_secs(30))?;
     alice.wait_for_contains("sample.txt", Duration::from_secs(30))?;
@@ -66,14 +64,12 @@ async fn cli_send_file_reject_in_chat_end_to_end() -> anyhow::Result<()> {
     let temp_dir = create_temp_dir("file-reject")?;
     let alice_config = temp_dir.join("alice.json");
     let bob_config = temp_dir.join("bob.json");
-    let bob_download_dir = temp_dir.join("bob-downloads");
-    fs::create_dir_all(&bob_download_dir)?;
 
     init_client_config(&alice_config, &server_url, "group1", "alice", None)?;
-    init_client_config(&bob_config, &server_url, "group1", "bob", Some(&bob_download_dir))?;
+    init_client_config(&bob_config, &server_url, "group1", "bob", None)?;
 
     let bob_config_text = bob_config.to_string_lossy().to_string();
-    let mut bob = spawn_y2m(&["chat", "--config", bob_config_text.as_str()], &workspace_root(), &[])?;
+    let mut bob = spawn_y2m(&["chat", "--config", bob_config_text.as_str()], &temp_dir, &[])?;
     bob.wait_for_contains("当前会话:", Duration::from_secs(10))?;
 
     let sample_path = temp_dir.join("reject.txt");
@@ -93,7 +89,7 @@ async fn cli_send_file_reject_in_chat_end_to_end() -> anyhow::Result<()> {
 
     let status = alice.wait()?;
     assert!(!status.success(), "send file should fail when target rejects");
-    assert!(!Path::new(&bob_download_dir.join("reject.txt")).exists());
+    assert!(!Path::new(&temp_dir.join("downloads").join("reject.txt")).exists());
 
     Ok(())
 }
@@ -133,7 +129,7 @@ async fn cli_chat_file_abort_end_to_end() -> anyhow::Result<()> {
     alice.wait_for_contains("abort.bin", Duration::from_secs(15))?;
 
     let file_id = bob.wait_for_match(Duration::from_secs(60), parse_file_offer_line)?;
-    bob.write_line(&format!("/accept {file_id}"))?;
+    bob.wait_for_contains("已接受文件", Duration::from_secs(15))?;
     alice.wait_for_contains("file_accept", Duration::from_secs(15))?;
     bob.wait_for_contains("chunk", Duration::from_secs(30))?;
     bob.write_line(&format!("/abort {file_id}"))?;

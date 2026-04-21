@@ -90,7 +90,6 @@ async fn cli_chat_reconnect_replays_failed_inflight_file_state() -> anyhow::Resu
 
     let offered_id = bob.wait_for_match(Duration::from_secs(10), parse_file_offer_line)?;
     assert_eq!(offered_id, file_id.to_string());
-    bob.write_line(&format!("/accept {offered_id}"))?;
     bob.wait_for_contains("已接受文件:", Duration::from_secs(10))?;
     tokio::time::sleep(Duration::from_millis(100)).await;
 
@@ -125,15 +124,13 @@ async fn cli_chat_reconnect_replays_failed_pending_offer() -> anyhow::Result<()>
     let mut server = spawn_server_process_at(addr)?;
     let temp_dir = create_temp_dir("chat-reconnect-pending-offer")?;
     let bob_config = temp_dir.join("bob.json");
-    let bob_download_dir = temp_dir.join("bob-downloads");
-    fs::create_dir_all(&bob_download_dir)?;
 
-    init_client_config(&bob_config, &server_url, "group1", "bob", Some(&bob_download_dir))?;
+    init_client_config(&bob_config, &server_url, "group1", "bob", None)?;
 
     let bob_config_text = bob_config.to_string_lossy().to_string();
     let mut bob = spawn_y2m(
         &["chat", "--config", bob_config_text.as_str(), "--reconnect-interval-sec", "1"],
-        &workspace_root(),
+        &temp_dir,
         &[],
     )?;
     bob.wait_for_contains("当前会话:", Duration::from_secs(10))?;
@@ -161,7 +158,7 @@ async fn cli_chat_reconnect_replays_failed_pending_offer() -> anyhow::Result<()>
 
     bob.write_line("/files")?;
     bob.wait_for_contains("当前没有待处理文件", Duration::from_secs(10))?;
-    assert!(!Path::new(&bob_download_dir.join("pending-offer.bin")).exists());
+    assert!(!Path::new(&temp_dir.join("downloads").join("pending-offer.bin")).exists());
 
     Ok(())
 }
