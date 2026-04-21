@@ -1,6 +1,9 @@
 import Image from "next/image";
+import { PERMISSIONS, buildSharedTestMessage } from "@y2/shared";
 
 export default function Home() {
+  const sharedTestMessage = buildSharedTestMessage("y2-chat");
+
   return (
     <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
       <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
@@ -32,6 +35,12 @@ export default function Home() {
               Learning
             </a>{" "}
             center.
+          </p>
+          <p className="max-w-md text-sm leading-6 text-zinc-500 dark:text-zinc-400">
+            Shared permission constants loaded: {PERMISSIONS.length}
+          </p>
+          <p className="max-w-md text-sm leading-6 text-emerald-700 dark:text-emerald-400">
+            {sharedTestMessage}
           </p>
         </div>
         <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">

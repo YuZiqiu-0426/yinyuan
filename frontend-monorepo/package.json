@@ -1,0 +1,11 @@
+{
+  "name": "yinyuan-frontend-monorepo",
+  "private": true,
+  "packageManager": "pnpm@10.11.0",
+  "scripts": {
+    "dev:chat": "pnpm --filter y2-chat dev",
+    "dev:manage": "pnpm --filter y2-manage start",
+    "build:chat": "pnpm --filter y2-chat build",
+    "build:manage": "pnpm --filter y2-manage build"
+  }
+}
