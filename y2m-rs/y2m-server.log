@@ -111,3 +111,9 @@
 2026-04-21T02:00:24.003363Z  WARN y2m_server::ws: websocket receive error remote_addr=127.0.0.1:59660 e=IO error: 远程主机强迫关闭了一个现有的连接。 (os error 10054)
 2026-04-21T02:00:24.081842Z  WARN y2m_server::ws: websocket receive error remote_addr=127.0.0.1:59661 e=IO error: 远程主机强迫关闭了一个现有的连接。 (os error 10054)
 2026-04-21T02:00:24.081985Z  WARN y2m_server::ws: websocket receive error remote_addr=127.0.0.1:59662 e=IO error: 远程主机强迫关闭了一个现有的连接。 (os error 10054)
+2026-04-21T02:45:09.957280Z  INFO y2m_server::ws: y2m server listening addr=127.0.0.1:8080
+2026-04-21T02:46:29.148226Z  WARN y2m_server::ws: websocket receive error remote_addr=127.0.0.1:53549 e=WebSocket protocol error: Connection reset without closing handshake
+2026-04-21T02:46:31.334467Z  WARN y2m_server::ws: websocket receive error remote_addr=127.0.0.1:61255 e=WebSocket protocol error: Connection reset without closing handshake
+2026-04-21T03:01:58.085971Z  INFO y2m_server::ws: y2m server listening addr=127.0.0.1:8080
+2026-04-21T03:02:52.580159Z  WARN y2m_server::ws: websocket receive error remote_addr=127.0.0.1:53551 e=WebSocket protocol error: Connection reset without closing handshake
+2026-04-21T03:02:53.652195Z  WARN y2m_server::ws: websocket receive error remote_addr=127.0.0.1:53951 e=WebSocket protocol error: Connection reset without closing handshake
