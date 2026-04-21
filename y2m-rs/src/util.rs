@@ -75,3 +75,44 @@ pub(crate) fn guess_content_type(path: &Path) -> String {
         _ => "application/octet-stream".to_string(),
     }
 }
+
+/// Strip ANSI OSC/CSI and non-printable controls (keep `\n` / `\t`) for safe console output.
+pub(crate) fn sanitize_terminal_controls(input: &str) -> String {
+    let mut out = String::with_capacity(input.len());
+    let mut iter = input.chars().peekable();
+    while let Some(ch) = iter.next() {
+        if ch == '\u{1b}' {
+            match iter.peek().copied() {
+                Some('[') => {
+                    iter.next();
+                    while let Some(c) = iter.next() {
+                        if ('\u{40}'..='\u{7e}').contains(&c) {
+                            break;
+                        }
+                    }
+                }
+                Some(']') => {
+                    iter.next();
+                    while let Some(c) = iter.next() {
+                        if c == '\u{07}' {
+                            break;
+                        }
+                        if c == '\u{1b}' && matches!(iter.peek(), Some('\\')) {
+                            iter.next();
+                            break;
+                        }
+                    }
+                }
+                Some(_) => {
+                    iter.next();
+                }
+                None => break,
+            }
+            continue;
+        }
+        out.push(ch);
+    }
+    out.chars()
+        .filter(|c| !c.is_control() || *c == '\n' || *c == '\t')
+        .collect()
+}

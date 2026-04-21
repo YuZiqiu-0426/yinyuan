@@ -15,6 +15,7 @@ use crate::{
 };
 
 mod command;
+pub(crate) mod command_results;
 mod file_handling;
 mod outgoing;
 
@@ -26,6 +27,7 @@ pub(crate) struct ConsoleState {
     pub(crate) download_dir_configured: bool,
     pub(crate) files: Mutex<LocalFileStore>,
     pub(crate) reconnect_replays: Mutex<Vec<String>>,
+    pub(crate) command_results: Mutex<command_results::CommandResultAggregator>,
 }
 
 impl ConsoleState {
@@ -38,6 +40,7 @@ impl ConsoleState {
             download_dir_configured,
             files: Mutex::new(LocalFileStore::default()),
             reconnect_replays: Mutex::new(Vec::new()),
+            command_results: Mutex::new(command_results::CommandResultAggregator::default()),
         }
     }
 
@@ -200,6 +203,7 @@ impl ConsoleState {
     }
 
     pub(crate) fn clear_file_transfer_state(&self) {
+        self.reset_command_result_aggregation();
         for entry in self.drain_local_file_entries_for_reconnect() {
             self.queue_reconnect_failure(
                 entry.view, entry.file_id, &entry.file_name,

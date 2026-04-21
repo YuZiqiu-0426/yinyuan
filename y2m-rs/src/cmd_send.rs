@@ -1,4 +1,4 @@
-use std::time::Duration;
+use std::{sync::Arc, time::Duration};
 
 use y2m_client_core::{ClientRuntime, IncomingServerPacket};
 use y2m_common::EventType;
@@ -6,6 +6,7 @@ use y2m_common::EventType;
 use crate::{
     cli::{CommandArgs, FileArgs, JsonArgs, SendArgs, SendCommand, TextArgs},
     file_flow::send_file_flow,
+    state::ConsoleState,
     util::{load_or_default_config, parse_json_value, resolve_config_path},
 };
 
@@ -46,12 +47,12 @@ async fn run_send_json(config: Option<std::path::PathBuf>, args: JsonArgs) -> an
 async fn run_send_command(config: Option<std::path::PathBuf>, args: CommandArgs) -> anyhow::Result<()> {
     let config_path = resolve_config_path(config);
     let config = load_or_default_config(&config_path)?;
-    let (mut runtime, _state) = crate::connect_with_console_plugin(config, None).await?;
+    let (mut runtime, state) = crate::connect_with_console_plugin(config, None).await?;
     runtime.send_command(args.group.clone(), args.to.clone(), args.command.clone(), Some(args.timeout))?;
     let group = args.group.unwrap_or_else(|| runtime.identity().group_name.clone());
     let target = args.to.unwrap_or_else(|| "*".to_string());
     println!("已发送命令到 [{group}][{target}]");
-    wait_for_command_result(&mut runtime, args.timeout).await?;
+    wait_for_command_result(&mut runtime, &state, args.timeout).await?;
     Ok(())
 }
 
@@ -62,20 +63,34 @@ async fn run_send_file(config: Option<std::path::PathBuf>, args: FileArgs) -> an
     send_file_flow(&mut runtime, &args.path, args.group, args.to, args.timeout).await
 }
 
-pub(crate) async fn wait_for_command_result(runtime: &mut ClientRuntime, timeout_secs: u64) -> anyhow::Result<()> {
+pub(crate) async fn wait_for_command_result(
+    runtime: &mut ClientRuntime,
+    console_state: &Arc<ConsoleState>,
+    timeout_secs: u64,
+) -> anyhow::Result<()> {
     let deadline = tokio::time::sleep(Duration::from_secs(timeout_secs.max(1) + 2));
     tokio::pin!(deadline);
     loop {
         tokio::select! {
-            _ = &mut deadline => { println!("等待命令执行结果超时"); break; }
+            _ = &mut deadline => {
+                console_state.flush_all_pending_command_results();
+                println!("等待命令执行结果超时");
+                break;
+            }
             maybe_packet = runtime.recv_next_packet() => {
-                let Some(packet) = maybe_packet else { break };
+                let Some(packet) = maybe_packet else {
+                    console_state.flush_all_pending_command_results();
+                    break;
+                };
                 let is_result = matches!(
                     &packet,
                     IncomingServerPacket::Event(e) if e.payload.event_type == EventType::CommandResult
                 );
                 runtime.dispatch_packet(packet).await?;
-                if is_result { break; }
+                if is_result {
+                    console_state.flush_all_pending_command_results();
+                    break;
+                }
             }
         }
     }
