@@ -1,0 +1,10 @@
+E:\project\YinYuan\y2m-rs\target\debug\deps\libtracing_appender-2ae5ca11fa5a1279.rmeta: C:\Users\22197\.cargo\registry\src\mirrors.aliyun.com-0671735e7cc7f5e7\tracing-appender-0.2.5\src\lib.rs C:\Users\22197\.cargo\registry\src\mirrors.aliyun.com-0671735e7cc7f5e7\tracing-appender-0.2.5\src\non_blocking.rs C:\Users\22197\.cargo\registry\src\mirrors.aliyun.com-0671735e7cc7f5e7\tracing-appender-0.2.5\src\rolling.rs C:\Users\22197\.cargo\registry\src\mirrors.aliyun.com-0671735e7cc7f5e7\tracing-appender-0.2.5\src\rolling\builder.rs C:\Users\22197\.cargo\registry\src\mirrors.aliyun.com-0671735e7cc7f5e7\tracing-appender-0.2.5\src\worker.rs C:\Users\22197\.cargo\registry\src\mirrors.aliyun.com-0671735e7cc7f5e7\tracing-appender-0.2.5\src\sync.rs
+
+E:\project\YinYuan\y2m-rs\target\debug\deps\tracing_appender-2ae5ca11fa5a1279.d: C:\Users\22197\.cargo\registry\src\mirrors.aliyun.com-0671735e7cc7f5e7\tracing-appender-0.2.5\src\lib.rs C:\Users\22197\.cargo\registry\src\mirrors.aliyun.com-0671735e7cc7f5e7\tracing-appender-0.2.5\src\non_blocking.rs C:\Users\22197\.cargo\registry\src\mirrors.aliyun.com-0671735e7cc7f5e7\tracing-appender-0.2.5\src\rolling.rs C:\Users\22197\.cargo\registry\src\mirrors.aliyun.com-0671735e7cc7f5e7\tracing-appender-0.2.5\src\rolling\builder.rs C:\Users\22197\.cargo\registry\src\mirrors.aliyun.com-0671735e7cc7f5e7\tracing-appender-0.2.5\src\worker.rs C:\Users\22197\.cargo\registry\src\mirrors.aliyun.com-0671735e7cc7f5e7\tracing-appender-0.2.5\src\sync.rs
+
+C:\Users\22197\.cargo\registry\src\mirrors.aliyun.com-0671735e7cc7f5e7\tracing-appender-0.2.5\src\lib.rs:
+C:\Users\22197\.cargo\registry\src\mirrors.aliyun.com-0671735e7cc7f5e7\tracing-appender-0.2.5\src\non_blocking.rs:
+C:\Users\22197\.cargo\registry\src\mirrors.aliyun.com-0671735e7cc7f5e7\tracing-appender-0.2.5\src\rolling.rs:
+C:\Users\22197\.cargo\registry\src\mirrors.aliyun.com-0671735e7cc7f5e7\tracing-appender-0.2.5\src\rolling\builder.rs:
+C:\Users\22197\.cargo\registry\src\mirrors.aliyun.com-0671735e7cc7f5e7\tracing-appender-0.2.5\src\worker.rs:
+C:\Users\22197\.cargo\registry\src\mirrors.aliyun.com-0671735e7cc7f5e7\tracing-appender-0.2.5\src\sync.rs:

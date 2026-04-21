@@ -1,0 +1,18 @@
+alice:
+/file E:\project\YinYuan\y2m-rs\1.txt
+开始发送文件: id=d39c2d6a-a122-4236-b281-13aa0c8955a1, name=1.txt, size=0 B, chunks=1, to=[mygroup][bob]
+已发送文件申请，等待对方确认...
+[mygroup][bob] file_accept {"fileId":"d39c2d6a-a122-4236-b281-13aa0c8955a1","savePath":"./bob-downloads\\1.txt"}
+对方已接受，目标保存路径: ./bob-downloads\1.txt
+发送进度: 100% (0 B/0 B), chunk 0/1
+分片发送完成，等待对方校验确认... id=d39c2d6a-a122-4236-b281-13aa0c8955a1, file=1.txt
+对方拒绝确认文件: id=d39c2d6a-a122-4236-b281-13aa0c8955a1, name=1.tx
+
+bob:
+/files
+待确认文件:
+  id=d39c2d6a-a122-4236-b281-13aa0c8955a1, 状态=待确认, from=[mygroup][alice], name=1.txt, size=0 bytes, 保存到=./bob-downloads\1.txt
+〉/accept d39c2d6a-a122-4236-b281-13aa0c8955a1
+已接受文件: id=d39c2d6a-a122-4236-b281-13aa0c8955a1, 保存到=./bob-downloads\1.txt, 等待分片传输...
+[mygroup][alice] file_complete {"fileId":"d39c2d6a-a122-4236-b281-13aa0c8955a1","fileSize":0,"sha256":"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"}
+文件接收失败: name=1.txt, reason=分片不完整，expected_chunks=1, received_chunks=0

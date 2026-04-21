@@ -1,0 +1,37 @@
+ 1. 所有类型消息可广播（服务端 + 必要时客户端校验）
+
+  • 在 router.rs 里找到对 command / command_result / file_* 的「禁止广播」分支，改为与 text / json
+    相同的广播解析：目标为「组内广播」时，向组内除发送者外的所有会话投递（具体以你们现有 text 的广播实现为准）。
+  • 全局搜索 CommandBroadcastNotAllowed、FileBroadcastNotAllowed（或类似错误码），删掉或改为允许广播。
+  • 若 y2m-client-core 或 CLI 在发 file_offer / command 前强制要求 client_name，需改为：广播时 target
+    可为「组」或约定空表示广播。
+
+  ────────────────────────────────────────
+
+
+
+  2. 文件传输不需要对方确认（服务端 + 接收端）
+
+  • transfer.rs：TransferRegistry 当前在收到 file_accept 前不转发二进制块。二选一：
+    • A（服务端）：在路由 file_offer 时即登记传输并标记为「已接受」，允许立刻转发 chunk；或
+    • B（客户端）：收到 file_offer 立刻自动发 file_accept（仍走协议，但用户无感）。
+  • 接收端 LocalFileStore / plugin：把「待用户 /accept」改为收到 offer 即 move_to_incoming
+    或等价自动接受路径（仍通过现有状态机方法，避免直接改字段）。
+
+  ────────────────────────────────────────
+
+
+
+  3. 命令执行完成后按用户名分组打印
+
+  • 在 ConsolePlugin（或 ConsoleState）里对 CommandResult 做缓冲：按 request_id（若广播共用同一
+    id）或按「本轮广播命令」聚合，子表为 client_name -> stdout/stderr。
+  • 打印时机：若协议里没有「全部客户端已回复」的信号，可采用：
+    • 同一 request_id 下短防抖（例如 150–300ms 内无新 CommandResult 则打印一批），或
+    • 每收到一条就打印，但格式为按用户名分块（[bob] / [alice] 各一段），避免行间穿插。
+  • 「按用户名分组」建议用 BTreeMap<String, …> 保证用户名顺序稳定。
+
+  ────────────────────────────────────────
+
+  请先重试本会话或贴出上述文件，工具一旦恢复我会直接改代码并跑 cargo test --workspace
+  相关用例。若你希望「广播命令」用同一 request_id 还是每人一个 id，也可以说明一下，我会按协议字段定聚合键。

@@ -1,0 +1,10 @@
+E:\project\YinYuan\y2m-rs\target\debug\deps\libtokio_tungstenite-3a3a38046adcf747.rmeta: C:\Users\22197\.cargo\registry\src\mirrors.aliyun.com-0671735e7cc7f5e7\tokio-tungstenite-0.29.0\src\lib.rs C:\Users\22197\.cargo\registry\src\mirrors.aliyun.com-0671735e7cc7f5e7\tokio-tungstenite-0.29.0\src\compat.rs C:\Users\22197\.cargo\registry\src\mirrors.aliyun.com-0671735e7cc7f5e7\tokio-tungstenite-0.29.0\src\connect.rs C:\Users\22197\.cargo\registry\src\mirrors.aliyun.com-0671735e7cc7f5e7\tokio-tungstenite-0.29.0\src\handshake.rs C:\Users\22197\.cargo\registry\src\mirrors.aliyun.com-0671735e7cc7f5e7\tokio-tungstenite-0.29.0\src\stream.rs C:\Users\22197\.cargo\registry\src\mirrors.aliyun.com-0671735e7cc7f5e7\tokio-tungstenite-0.29.0\src\tls.rs
+
+E:\project\YinYuan\y2m-rs\target\debug\deps\tokio_tungstenite-3a3a38046adcf747.d: C:\Users\22197\.cargo\registry\src\mirrors.aliyun.com-0671735e7cc7f5e7\tokio-tungstenite-0.29.0\src\lib.rs C:\Users\22197\.cargo\registry\src\mirrors.aliyun.com-0671735e7cc7f5e7\tokio-tungstenite-0.29.0\src\compat.rs C:\Users\22197\.cargo\registry\src\mirrors.aliyun.com-0671735e7cc7f5e7\tokio-tungstenite-0.29.0\src\connect.rs C:\Users\22197\.cargo\registry\src\mirrors.aliyun.com-0671735e7cc7f5e7\tokio-tungstenite-0.29.0\src\handshake.rs C:\Users\22197\.cargo\registry\src\mirrors.aliyun.com-0671735e7cc7f5e7\tokio-tungstenite-0.29.0\src\stream.rs C:\Users\22197\.cargo\registry\src\mirrors.aliyun.com-0671735e7cc7f5e7\tokio-tungstenite-0.29.0\src\tls.rs
+
+C:\Users\22197\.cargo\registry\src\mirrors.aliyun.com-0671735e7cc7f5e7\tokio-tungstenite-0.29.0\src\lib.rs:
+C:\Users\22197\.cargo\registry\src\mirrors.aliyun.com-0671735e7cc7f5e7\tokio-tungstenite-0.29.0\src\compat.rs:
+C:\Users\22197\.cargo\registry\src\mirrors.aliyun.com-0671735e7cc7f5e7\tokio-tungstenite-0.29.0\src\connect.rs:
+C:\Users\22197\.cargo\registry\src\mirrors.aliyun.com-0671735e7cc7f5e7\tokio-tungstenite-0.29.0\src\handshake.rs:
+C:\Users\22197\.cargo\registry\src\mirrors.aliyun.com-0671735e7cc7f5e7\tokio-tungstenite-0.29.0\src\stream.rs:
+C:\Users\22197\.cargo\registry\src\mirrors.aliyun.com-0671735e7cc7f5e7\tokio-tungstenite-0.29.0\src\tls.rs:

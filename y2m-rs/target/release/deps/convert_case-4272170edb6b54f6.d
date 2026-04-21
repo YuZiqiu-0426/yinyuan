@@ -1,0 +1,11 @@
+E:\project\YinYuan\y2m-rs\target\release\deps\libconvert_case-4272170edb6b54f6.rmeta: C:\Users\22197\.cargo\registry\src\mirrors.aliyun.com-0671735e7cc7f5e7\convert_case-0.10.0\src\lib.rs C:\Users\22197\.cargo\registry\src\mirrors.aliyun.com-0671735e7cc7f5e7\convert_case-0.10.0\src\boundary.rs C:\Users\22197\.cargo\registry\src\mirrors.aliyun.com-0671735e7cc7f5e7\convert_case-0.10.0\src\case.rs C:\Users\22197\.cargo\registry\src\mirrors.aliyun.com-0671735e7cc7f5e7\convert_case-0.10.0\src\converter.rs C:\Users\22197\.cargo\registry\src\mirrors.aliyun.com-0671735e7cc7f5e7\convert_case-0.10.0\src\pattern.rs
+
+E:\project\YinYuan\y2m-rs\target\release\deps\libconvert_case-4272170edb6b54f6.rlib: C:\Users\22197\.cargo\registry\src\mirrors.aliyun.com-0671735e7cc7f5e7\convert_case-0.10.0\src\lib.rs C:\Users\22197\.cargo\registry\src\mirrors.aliyun.com-0671735e7cc7f5e7\convert_case-0.10.0\src\boundary.rs C:\Users\22197\.cargo\registry\src\mirrors.aliyun.com-0671735e7cc7f5e7\convert_case-0.10.0\src\case.rs C:\Users\22197\.cargo\registry\src\mirrors.aliyun.com-0671735e7cc7f5e7\convert_case-0.10.0\src\converter.rs C:\Users\22197\.cargo\registry\src\mirrors.aliyun.com-0671735e7cc7f5e7\convert_case-0.10.0\src\pattern.rs
+
+E:\project\YinYuan\y2m-rs\target\release\deps\convert_case-4272170edb6b54f6.d: C:\Users\22197\.cargo\registry\src\mirrors.aliyun.com-0671735e7cc7f5e7\convert_case-0.10.0\src\lib.rs C:\Users\22197\.cargo\registry\src\mirrors.aliyun.com-0671735e7cc7f5e7\convert_case-0.10.0\src\boundary.rs C:\Users\22197\.cargo\registry\src\mirrors.aliyun.com-0671735e7cc7f5e7\convert_case-0.10.0\src\case.rs C:\Users\22197\.cargo\registry\src\mirrors.aliyun.com-0671735e7cc7f5e7\convert_case-0.10.0\src\converter.rs C:\Users\22197\.cargo\registry\src\mirrors.aliyun.com-0671735e7cc7f5e7\convert_case-0.10.0\src\pattern.rs
+
+C:\Users\22197\.cargo\registry\src\mirrors.aliyun.com-0671735e7cc7f5e7\convert_case-0.10.0\src\lib.rs:
+C:\Users\22197\.cargo\registry\src\mirrors.aliyun.com-0671735e7cc7f5e7\convert_case-0.10.0\src\boundary.rs:
+C:\Users\22197\.cargo\registry\src\mirrors.aliyun.com-0671735e7cc7f5e7\convert_case-0.10.0\src\case.rs:
+C:\Users\22197\.cargo\registry\src\mirrors.aliyun.com-0671735e7cc7f5e7\convert_case-0.10.0\src\converter.rs:
+C:\Users\22197\.cargo\registry\src\mirrors.aliyun.com-0671735e7cc7f5e7\convert_case-0.10.0\src\pattern.rs:

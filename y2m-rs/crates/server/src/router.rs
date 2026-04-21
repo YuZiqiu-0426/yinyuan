@@ -1,4 +1,4 @@
-use y2m_common::{AckPacket, Endpoint, EventPacket, EventType, PacketKind, PROTOCOL_VERSION};
+use y2m_common::{AckPacket, Endpoint, EventPacket, PacketKind, PROTOCOL_VERSION};
 
 use crate::{
     error::ServerError,
@@ -54,8 +54,8 @@ pub async fn route_event(
         client_name: target_client.clone(),
     });
 
-    match (packet.payload.event_type, target_client) {
-        (EventType::Text | EventType::Json, Some(client_name)) => {
+    match target_client {
+        Some(client_name) => {
             let recipient = store.resolve_unicast(&target_group, &client_name).await?;
             Ok(RouteResult {
                 mode: RouteMode::Unicast,
@@ -63,7 +63,7 @@ pub async fn route_event(
                 recipients: vec![recipient],
             })
         }
-        (EventType::Text | EventType::Json, None) => {
+        None => {
             let recipients = store
                 .resolve_broadcast(&target_group, sender.connection_id)
                 .await?;
@@ -73,40 +73,6 @@ pub async fn route_event(
                 recipients,
             })
         }
-        (EventType::Command | EventType::CommandResult, Some(client_name)) => {
-            let recipient = store.resolve_unicast(&target_group, &client_name).await?;
-            Ok(RouteResult {
-                mode: RouteMode::Unicast,
-                packet,
-                recipients: vec![recipient],
-            })
-        }
-        (EventType::Command | EventType::CommandResult, None) => {
-            Err(ServerError::CommandBroadcastNotAllowed)
-        }
-        (
-            EventType::FileOffer
-            | EventType::FileAccept
-            | EventType::FileReject
-            | EventType::FileComplete
-            | EventType::FileAbort,
-            Some(client_name),
-        ) => {
-            let recipient = store.resolve_unicast(&target_group, &client_name).await?;
-            Ok(RouteResult {
-                mode: RouteMode::Unicast,
-                packet,
-                recipients: vec![recipient],
-            })
-        }
-        (
-            EventType::FileOffer
-            | EventType::FileAccept
-            | EventType::FileReject
-            | EventType::FileComplete
-            | EventType::FileAbort,
-            None,
-        ) => Err(ServerError::FileBroadcastNotAllowed),
     }
 }
 
@@ -152,7 +118,7 @@ pub async fn route_ack(
 mod tests {
     use serde_json::json;
     use tokio::sync::mpsc;
-    use y2m_common::{CapabilitySet, EventPayload, Packet};
+    use y2m_common::{CapabilitySet, Endpoint, EventPayload, EventType, Packet};
 
     use super::*;
 
@@ -206,7 +172,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn command_broadcast_is_rejected() {
+    async fn command_broadcast_targets_group_except_sender() {
         let store = SessionStore::new();
         let (sender_tx, _sender_rx) = mpsc::unbounded_channel();
         let sender = store
@@ -216,6 +182,17 @@ mod tests {
                 None,
                 CapabilitySet::default(),
                 sender_tx,
+            )
+            .await
+            .unwrap();
+        let (recipient_tx, _recipient_rx) = mpsc::unbounded_channel();
+        let recipient = store
+            .register(
+                Some("group-a"),
+                Some("bob"),
+                None,
+                CapabilitySet::default(),
+                recipient_tx,
             )
             .await
             .unwrap();
@@ -236,12 +213,14 @@ mod tests {
             },
         );
 
-        let error = route_event(&store, &sender, packet).await.unwrap_err();
-        assert!(matches!(error, ServerError::CommandBroadcastNotAllowed));
+        let result = route_event(&store, &sender, packet).await.unwrap();
+        assert_eq!(result.mode, RouteMode::Broadcast);
+        assert_eq!(result.recipients.len(), 1);
+        assert_eq!(result.recipients[0].connection_id, recipient.connection_id);
     }
 
     #[tokio::test]
-    async fn file_offer_broadcast_is_rejected() {
+    async fn file_offer_broadcast_targets_group_except_sender() {
         let store = SessionStore::new();
         let (sender_tx, _sender_rx) = mpsc::unbounded_channel();
         let sender = store
@@ -251,6 +230,17 @@ mod tests {
                 None,
                 CapabilitySet::default(),
                 sender_tx,
+            )
+            .await
+            .unwrap();
+        let (recipient_tx, _recipient_rx) = mpsc::unbounded_channel();
+        let recipient = store
+            .register(
+                Some("group-a"),
+                Some("bob"),
+                None,
+                CapabilitySet::default(),
+                recipient_tx,
             )
             .await
             .unwrap();
@@ -275,7 +265,9 @@ mod tests {
             },
         );
 
-        let error = route_event(&store, &sender, packet).await.unwrap_err();
-        assert!(matches!(error, ServerError::FileBroadcastNotAllowed));
+        let result = route_event(&store, &sender, packet).await.unwrap();
+        assert_eq!(result.mode, RouteMode::Broadcast);
+        assert_eq!(result.recipients.len(), 1);
+        assert_eq!(result.recipients[0].connection_id, recipient.connection_id);
     }
 }

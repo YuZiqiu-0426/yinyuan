@@ -1,0 +1,8 @@
+{
+  "serverUrl": "ws://127.0.0.1:8080/ws",
+  "groupName": "mygroup",
+  "clientName": "alice",
+  "token": null,
+  "heartbeatIntervalOverrideSec": null,
+  "downloadDir": null
+}

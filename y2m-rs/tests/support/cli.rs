@@ -287,3 +287,28 @@ where
 
 #[allow(dead_code)]
 fn _keep_types(_: Option<(ChildStdout, ChildStderr)>) {}
+
+pub fn parse_file_offer_line(line: &str) -> Option<String> {
+    let needle = "收到文件请求: id=";
+    if let Some(idx) = line.find(needle) {
+        let rest = &line[idx + needle.len()..];
+        let (file_id, _) = rest.split_once(", from=")?;
+        return Some(file_id.trim().to_string());
+    }
+    // Windows / 编码异常时中文行可能损坏；插件会先打印纯 ASCII 的 `file_offer {json}`。
+    let idx = line.find("file_offer ")?;
+    let json_str = line[idx + "file_offer ".len()..].trim();
+    let v: serde_json::Value = serde_json::from_str(json_str).ok()?;
+    match v.get("fileId")? {
+        serde_json::Value::String(s) => Some(s.clone()),
+        other => other.as_str().map(|s| s.to_string()),
+    }
+}
+
+pub fn timeout_command() -> String {
+    if cfg!(windows) { "ping 127.0.0.1 -n 6 >nul".to_string() } else { "sleep 3".to_string() }
+}
+
+pub fn missing_command_name() -> &'static str { "definitely_missing_y2m_command_12345" }
+
+pub fn missing_command_exit_code() -> i32 { if cfg!(windows) { 1 } else { 127 } }

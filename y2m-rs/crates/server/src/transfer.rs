@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 use tokio::sync::RwLock;
 use uuid::Uuid;
@@ -14,9 +14,12 @@ pub struct TransferRecord {
     pub accepted: bool,
 }
 
+type LegKey = (Uuid, Uuid);
+
 #[derive(Debug, Default)]
 pub struct TransferRegistry {
-    by_file_id: RwLock<HashMap<Uuid, TransferRecord>>,
+    legs: RwLock<HashMap<LegKey, TransferRecord>>,
+    /// Maps `file_complete` (and similar) ack `request_id` -> `file_id` for cleanup after ack.
     by_request_id: RwLock<HashMap<String, Uuid>>,
 }
 
@@ -32,6 +35,7 @@ impl TransferRegistry {
         sender_connection_id: Uuid,
         receiver_connection_id: Uuid,
     ) {
+        let key = (file_id, receiver_connection_id);
         let record = TransferRecord {
             file_id,
             request_id: request_id.clone(),
@@ -39,9 +43,7 @@ impl TransferRegistry {
             receiver_connection_id,
             accepted: false,
         };
-
-        self.by_file_id.write().await.insert(file_id, record);
-        self.by_request_id.write().await.insert(request_id, file_id);
+        self.legs.write().await.insert(key, record);
     }
 
     pub async fn mark_accepted(
@@ -49,80 +51,132 @@ impl TransferRegistry {
         file_id: Uuid,
         receiver_connection_id: Uuid,
     ) -> Result<TransferRecord, ServerError> {
-        let mut transfers = self.by_file_id.write().await;
-        let record = transfers
-            .get_mut(&file_id)
+        let key = (file_id, receiver_connection_id);
+        let mut legs = self.legs.write().await;
+        let record = legs
+            .get_mut(&key)
             .ok_or(ServerError::FileTransferNotAccepted)?;
-
-        if record.receiver_connection_id != receiver_connection_id {
-            return Err(ServerError::FileTransferNotAccepted);
-        }
-
         record.accepted = true;
         Ok(record.clone())
     }
 
-    pub async fn get_by_file_id(&self, file_id: Uuid) -> Option<TransferRecord> {
-        self.by_file_id.read().await.get(&file_id).cloned()
-    }
-
-    pub async fn update_request_id(
+    pub async fn accepted_sender_legs(
         &self,
         file_id: Uuid,
-        request_id: String,
-    ) -> Result<TransferRecord, ServerError> {
-        let mut by_file_id = self.by_file_id.write().await;
-        let record = by_file_id
-            .get_mut(&file_id)
-            .ok_or(ServerError::FileTransferNotAccepted)?;
-        let old_request_id = record.request_id.clone();
-        record.request_id = request_id.clone();
-        let updated = record.clone();
-        drop(by_file_id);
-
-        let mut by_request_id = self.by_request_id.write().await;
-        by_request_id.remove(&old_request_id);
-        by_request_id.insert(request_id, file_id);
-
-        Ok(updated)
+        sender_connection_id: Uuid,
+    ) -> Vec<TransferRecord> {
+        self.legs
+            .read()
+            .await
+            .values()
+            .filter(|r| {
+                r.file_id == file_id
+                    && r.sender_connection_id == sender_connection_id
+                    && r.accepted
+            })
+            .cloned()
+            .collect()
     }
 
-    pub async fn remove_by_file_id(&self, file_id: Uuid) -> Option<TransferRecord> {
-        let mut by_file_id = self.by_file_id.write().await;
-        let record = by_file_id.remove(&file_id)?;
-        drop(by_file_id);
+    /// After `file_complete`, all legs for `file_id` share the same `request_id` (e.g. broadcast).
+    pub async fn set_complete_request_id_for_file(
+        &self,
+        file_id: Uuid,
+        new_request_id: String,
+    ) -> Result<(), ServerError> {
+        let mut legs = self.legs.write().await;
+        let keys: Vec<LegKey> = legs
+            .keys()
+            .filter(|(fid, _)| *fid == file_id)
+            .copied()
+            .collect();
+        if keys.is_empty() {
+            return Err(ServerError::FileTransferNotAccepted);
+        }
+        let mut old_ids = HashSet::new();
+        for key in &keys {
+            if let Some(r) = legs.get(key) {
+                old_ids.insert(r.request_id.clone());
+            }
+        }
+        for key in keys {
+            if let Some(r) = legs.get_mut(&key) {
+                r.request_id = new_request_id.clone();
+            }
+        }
+        drop(legs);
 
-        self.by_request_id.write().await.remove(&record.request_id);
-        Some(record)
+        let mut by_request_id = self.by_request_id.write().await;
+        for oid in old_ids {
+            by_request_id.remove(&oid);
+        }
+        by_request_id.insert(new_request_id, file_id);
+        Ok(())
     }
 
-    pub async fn remove_by_request_id(&self, request_id: &str) -> Option<TransferRecord> {
+    pub async fn remove_by_file_id(&self, file_id: Uuid) {
+        let removed = {
+            let mut legs = self.legs.write().await;
+            let keys: Vec<LegKey> = legs
+                .keys()
+                .filter(|(fid, _)| *fid == file_id)
+                .copied()
+                .collect();
+            let mut out = Vec::new();
+            for key in keys {
+                if let Some(rec) = legs.remove(&key) {
+                    out.push(rec);
+                }
+            }
+            out
+        };
         let mut by_request_id = self.by_request_id.write().await;
-        let file_id = by_request_id.remove(request_id)?;
-        drop(by_request_id);
+        for rec in removed {
+            by_request_id.remove(&rec.request_id);
+        }
+    }
 
-        self.by_file_id.write().await.remove(&file_id)
+    /// Removes all legs for the file associated with this complete/ack `request_id` (idempotent).
+    pub async fn remove_by_request_id(&self, request_id: &str) {
+        let Some(file_id) = self.by_request_id.write().await.remove(request_id) else {
+            return;
+        };
+        let mut legs = self.legs.write().await;
+        let keys: Vec<LegKey> = legs
+            .keys()
+            .filter(|(fid, _)| *fid == file_id)
+            .copied()
+            .collect();
+        for key in keys {
+            legs.remove(&key);
+        }
     }
 
     pub async fn remove_by_connection(&self, connection_id: Uuid) -> Vec<TransferRecord> {
-        let mut by_file_id = self.by_file_id.write().await;
-        let removed: Vec<TransferRecord> = by_file_id
-            .values()
-            .filter(|record| {
-                record.sender_connection_id == connection_id
-                    || record.receiver_connection_id == connection_id
-            })
-            .cloned()
-            .collect();
+        let keys: Vec<LegKey> = {
+            let legs = self.legs.read().await;
+            legs
+                .iter()
+                .filter(|(_, r)| {
+                    r.sender_connection_id == connection_id
+                        || r.receiver_connection_id == connection_id
+                })
+                .map(|(k, _)| *k)
+                .collect()
+        };
 
-        for record in &removed {
-            by_file_id.remove(&record.file_id);
+        let mut removed = Vec::new();
+        let mut legs = self.legs.write().await;
+        for key in keys {
+            if let Some(rec) = legs.remove(&key) {
+                removed.push(rec);
+            }
         }
-        drop(by_file_id);
+        drop(legs);
 
         let mut by_request_id = self.by_request_id.write().await;
-        for record in &removed {
-            by_request_id.remove(&record.request_id);
+        for rec in &removed {
+            by_request_id.remove(&rec.request_id);
         }
 
         removed

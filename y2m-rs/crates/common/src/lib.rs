@@ -78,8 +78,6 @@ pub enum ErrorCode {
     DuplicateClientName,
     ClientNotFound,
     GroupNotFound,
-    CommandBroadcastNotAllowed,
-    FileBroadcastNotAllowed,
     FileTooLarge,
     FileTransferNotAccepted,
     Unauthorized,

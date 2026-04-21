@@ -22,10 +22,6 @@ pub enum ServerError {
     },
     #[error("target group `{group_name}` not found")]
     GroupNotFound { group_name: String },
-    #[error("command event does not support group broadcast")]
-    CommandBroadcastNotAllowed,
-    #[error("file event does not support group broadcast")]
-    FileBroadcastNotAllowed,
     #[error("file offer exceeds limit: {field_name}={actual}, max={max}")]
     FileTooLarge {
         file_id: Option<String>,
@@ -50,8 +46,6 @@ impl ServerError {
             Self::DuplicateClientName { .. } => ErrorCode::DuplicateClientName,
             Self::ClientNotFound { .. } => ErrorCode::ClientNotFound,
             Self::GroupNotFound { .. } => ErrorCode::GroupNotFound,
-            Self::CommandBroadcastNotAllowed => ErrorCode::CommandBroadcastNotAllowed,
-            Self::FileBroadcastNotAllowed => ErrorCode::FileBroadcastNotAllowed,
             Self::FileTooLarge { .. } => ErrorCode::FileTooLarge,
             Self::HeartbeatTimeout => ErrorCode::HeartbeatTimeout,
             Self::FileTransferNotAccepted => ErrorCode::FileTransferNotAccepted,
