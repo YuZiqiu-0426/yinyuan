@@ -26,6 +26,13 @@ Automation (agents) should perform the commit when finishing a coherent task, no
 
 ---
 
+## Runtime and tooling
+
+4. **tmux**: Start and manage local dev processes in **tmux** (sessions / windows / panes) so services stay in one place—avoid scattering long-lived servers across unrelated terminal tabs without a session layout. Use a predictable session name per repo or per feature when helpful.
+5. **Frontend package manager**: For **frontend** projects in this repository (e.g. under `frontend-monorepo/`), use **pnpm** only—`pnpm install`, `pnpm run <script>`, etc. Do not introduce npm or Yarn for day-to-day installs or script runs unless an exception is documented in this file.
+
+---
+
 ## Where this is referenced
 
 - **Cursor**: `.cursor/rules/yinyuan-conventions.mdc` points here so the same rules load in assisted sessions.
