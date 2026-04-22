@@ -1,17 +1,10 @@
 ---
-description: YinYuan 工程约定 — 函数/文件行数上限与任务后提交
+description: Repository engineering standards (see CONVENTIONS.md at repo root)
 alwaysApply: true
 ---
 
-# YinYuan 工程约定
+# YinYuan conventions
 
-## 代码规模
+All project engineering rules live in **`CONVENTIONS.md`** at the **repository root** (plain Markdown).
 
-1. **单个函数不要超过 50 行**（含空行与注释）。若逻辑过长，应拆成多个私有函数或子模块，保持单一职责。
-2. **单个文件不要超过 500 行**。若接近或超过，应拆文件（例如按类型/职责分到 `mod` 或独立源文件）。
-
-## 工作流
-
-3. **每个任务完成后**：在记忆中已完成的结论要落实，并在 **git 中提交**（`git add` 相关改动 + `git commit`，信息用完整句子说明做了什么、为何）。
-
-Agent 在完成用户交办的一整块任务后，应主动执行提交，而不是只列出让用户自己执行的命令。
+Follow that file for: per-function and per-file line limits, and Git commit expectations after tasks.

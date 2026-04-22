@@ -2,12 +2,16 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Engineering conventions
+
+- **`CONVENTIONS.md`** (repository root) — plain Markdown: per-function / per-file line limits, Git commit expectations after tasks. Applies to all tooling and contributors.
+
 ## Repository layout
 
-The actual Rust workspace lives under `y2m-rs/`. All `cargo` commands must be run from that directory (or with `--manifest-path y2m-rs/Cargo.toml`). The repo root contains only Chinese design docs:
+The actual Rust workspace lives under `y2m-rs/`. All `cargo` commands must be run from that directory (or with `--manifest-path y2m-rs/Cargo.toml`). The repo root contains design docs and conventions, for example:
 
 - `需求v1.md` — original requirements (v1).
-- `当前实现说明.md` — authoritative implementation status / what is done vs. pending. Read before picking up new work — it's kept updated as features land.
+- `docs/当前实现说明.md` — authoritative implementation status / what is done vs. pending. Read before picking up new work — it's kept updated as features land.
 - `编译部署文档.md` — build & deployment notes.
 - `使用手册.md` — user manual.
 - `y2m-rs/docs/quickstart.md` — end-user quickstart for running server + two clients.
