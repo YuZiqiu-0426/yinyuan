@@ -7,5 +7,9 @@
     "dev:manage": "pnpm --filter y2-manage start",
     "build:chat": "pnpm --filter y2-chat build",
     "build:manage": "pnpm --filter y2-manage build"
+  },
+  "volta": {
+    "node": "24.13.0",
+    "pnpm": "10.11.0"
   }
 }

@@ -4,5 +4,9 @@
   "private": true,
   "type": "module",
   "main": "src/index.ts",
-  "types": "src/index.ts"
+  "types": "src/index.ts",
+  "volta": {
+    "node": "24.13.0",
+    "pnpm": "10.11.0"
+  }
 }
