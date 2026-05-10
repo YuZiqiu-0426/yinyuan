@@ -103,7 +103,7 @@ Claude: 合并 + 验收 + 优化
 
 ### 仓库路径与 Windows / monorepo
 
-- 管理端 Web 应用目录为 **`frontend-monorepo/apps/y2-manage`**（Angular）；包管理使用 **pnpm**，与仓库根 [`CONVENTIONS.md`](CONVENTIONS.md) 一致。
+- 管理端 Web 应用目录为 **`frontend-monorepo/apps/y2-manage`**（Angular）；包管理使用 **pnpm**，与仓库根 [`agent.md`](agent.md) 中 pnpm 约定一致。
 - 第八节目录与 `start-agents.sh` 为 **Unix 示意**；在 **Windows** 上需改用 PowerShell 或 WSL、注意路径分隔符与后台进程启动方式；多 worktree 与 monorepo 并存时，避免多个应用根各自重复安装依赖，建议以 **monorepo 根** 为唯一 `pnpm install` 入口。
 
 ---

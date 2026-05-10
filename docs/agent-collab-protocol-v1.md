@@ -156,7 +156,7 @@
 
 ## 7. 安全与权限（占位）
 
-上线后由 `auth-service` 与 y2m `init` introspect 约束连接身份；扩展权限码见 `CLAUDE.md`（`task.manage`、`shared_layer.lock` 等）。本 v1 规范不定义鉴权细节，见 `docs/权限矩阵与默认角色模板-v1.md` 后续版本。
+上线后由 `auth-service` 与 y2m `init` introspect 约束连接身份；扩展权限码见根目录 `agent.md`（`task.manage`、`shared_layer.lock` 等）。本 v1 规范不定义鉴权细节，见 `docs/权限矩阵与默认角色模板-v1.md` 后续版本。
 
 ---
 

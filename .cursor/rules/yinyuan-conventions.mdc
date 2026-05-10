@@ -1,10 +1,10 @@
 ---
-description: Repository engineering standards (see CONVENTIONS.md at repo root)
+description: Repository engineering standards (see agent.md at repo root)
 alwaysApply: true
 ---
 
 # YinYuan conventions
 
-All project engineering rules live in **`CONVENTIONS.md`** at the **repository root** (plain Markdown).
+All project engineering rules and repository navigation for agents live in **`agent.md`** at the **repository root** (plain Markdown).
 
-Follow that file for: per-function and per-file line limits, and Git commit expectations after tasks.
+Follow that file for: per-function and per-file line limits, Git commit expectations after tasks, `cargo` / test entry points, and architecture orientation.
