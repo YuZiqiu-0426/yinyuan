@@ -42,6 +42,8 @@
 4. **tmux**：本地常驻服务、watch 等优先放在 **tmux** 会话/窗口中，避免无布局地散落在多个无关终端页签。
 5. **前端包管理**：在 **`frontend-monorepo/`** 内仅使用 **pnpm**（`pnpm install`、`pnpm run <script>`）。日常不要引入 npm 或 Yarn，除非在本文件中有书面例外。
 
+- **前端样式（Tailwind，团队约定）**：**`frontend-monorepo/apps/`** 下各 **Web 应用**（含现有及未来 `apps/*`）**一律**使用 **Tailwind CSS** 完成布局与组件外观；**禁止**再引入 Bootstrap、Bulma、Uno 等与 Tailwind **并行**的全局 CSS/原子化框架。新增应用自创建起即须配置 Tailwind（PostCSS + 全局 `styles` 引入），可参考 **`frontend-monorepo/apps/y2-manage`** 的 **`.postcssrc.json`** 与 **`src/styles.css`**（Tailwind 入口；组件样式仍可用 SCSS）。集成步骤以 [Tailwind 官方 Angular 指南](https://tailwindcss.com/docs/installation/framework-guides/angular) 为准。**`packages/*`** 以逻辑/类型为主时可不接 Tailwind；若提供可复用 UI 片段，类名须与 Tailwind 工具类体系一致。
+
 ---
 
 ## 6. 项目约定
