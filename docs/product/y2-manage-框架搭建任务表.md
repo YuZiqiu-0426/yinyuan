@@ -26,7 +26,7 @@
 | 环境与 HTTP | 已有 | `environment.*` + `fileReplacements`；`provideCore()` 提供带拦截器的 `Y2HttpClient`（Bearer、`401→refresh` 一次后重试） |
 | 登录与会话（MW-01/02 部分） | 已有 | `AuthApiService` + `useAuthMock`；两步 MFA UI；错误码中文；内存 `accessToken` + 短时 `mfaTicket`；`refreshTokens` **单飞** + 独立 axios；`SessionRenewScheduler` 临期主动 refresh（`refreshSkewSeconds`） |
 | `@y2/shared` | 已有 | 管理端经 `Y2_HTTP_CLIENT`；`ng serve` 见 README paths + `prebundle.exclude` |
-| `auth-service` | 未接 | 生产登录/刷新需真实后端与 HttpOnly refresh + CSRF；Admin API 仍依赖 AU-* |
+| `auth-service` | 未接 | 仓库根 **`auth-service/`** 已有 **Axum 架子**（`/health`）；生产登录/刷新仍需真实 API 与 HttpOnly refresh + CSRF；Admin API 仍依赖 AU-* |
 
 ## 4. 总览：阶段 ↔ 里程碑 ↔ MW
 

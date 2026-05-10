@@ -14,7 +14,9 @@
 | [`requirements/`](requirements/) | 原始需求（v1） |
 | [`strategy/`](strategy/) | 多 Agent 前端协作方案、能力与协议对照说明 |
 
-随 crate 的开发者文档仍在 [`../y2m-rs/docs/quickstart.md`](../y2m-rs/docs/quickstart.md)，不放在本索引树下。
+随 **`y2m`** / **`y2m-server`** 的开发者文档仍在 [`../y2m-rs/docs/quickstart.md`](../y2m-rs/docs/quickstart.md)，不放在本索引树下。
+
+**`auth-service/`**（统一认证中心，与 `y2m-rs` 分立）的本地运行与占位说明见 **[`../auth-service/README.md`](../auth-service/README.md)**；设计/API 仍以本目录 [`auth/`](auth/) 为准。
 
 ## 必读入口
 
