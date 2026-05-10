@@ -48,8 +48,8 @@
 
 ## 6. 项目约定
 
-6. **仓库布局**：根目录以文档与协作为主；Rust 工作区在 **`y2m-rs/`**；前端应用在 **`frontend-monorepo/`**。
-7. **Rust 命令**：所有 **`cargo`** 在 **`y2m-rs/`** 下执行（或使用 `--manifest-path y2m-rs/Cargo.toml`）。仓库根**不是** Rust workspace 根。
+6. **仓库布局**：根目录以文档与协作为主；**`y2m-rs/`** 为 **`y2m` / `y2m-server` 等** Rust workspace；**`auth-service/`** 为**独立**的统一认证占位服务（Axum，自有 `Cargo.toml`）；前端在 **`frontend-monorepo/`**。
+7. **Rust 命令**：**`y2m`** 相关在 **`y2m-rs/`** 下执行 **`cargo`**（或 **`--manifest-path y2m-rs/Cargo.toml`**）。**`auth-service`** 在 **`auth-service/`** 目录下单独 **`cargo build` / `cargo run`**。仓库根**不是**单一 Rust workspace 根。
 8. **实现描述**：以 **`docs/product/当前实现说明.md`** 为准描述「系统现在怎么做」。
 9. **排期与下一步**：优先查阅 **`docs/product/工作进度.md`**。
 10. **管理端与交互**：管理端 Web 为 **`frontend-monorepo/apps/y2-manage`**（Angular）。用户侧聊天 Web 已移除；用户交互为 **CLI-only**（**`y2m`**）。多 Agent 编排复用同一 WebSocket；业务消息可在 **`EventType::Json`** 之上承载 **`agent-collab`**（见 **`docs/orchestration/agent-collab-protocol-v1.md`**）。
@@ -81,7 +81,7 @@
 
 ## 9. 仓库布局与文档索引
 
-Rust 工作区为 **`y2m-rs/`**。根目录常见设计/说明文档示例：
+Rust：**`y2m-rs/`** 为 relay/CLI 等 workspace；**`auth-service/`** 为独立 crate（统一认证 HTTP，见该目录 `README.md`）。根目录常见设计/说明文档示例：
 
 - **`docs/README.md`** — `docs/` 子目录索引与必读入口。
 - **`docs/requirements/需求v1.md`** — 原始需求（v1）。
