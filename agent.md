@@ -51,21 +51,22 @@
 8. **实现描述**：以 **`docs/product/当前实现说明.md`** 为准描述「系统现在怎么做」。
 9. **排期与下一步**：优先查阅 **`docs/product/工作进度.md`**。
 10. **管理端与交互**：管理端 Web 为 **`frontend-monorepo/apps/y2-manage`**（Angular）。用户侧聊天 Web 已移除；用户交互为 **CLI-only**（**`y2m`**）。多 Agent 编排复用同一 WebSocket；业务消息可在 **`EventType::Json`** 之上承载 **`agent-collab`**（见 **`docs/orchestration/agent-collab-protocol-v1.md`**）。
-11. **行为基线**：路由、重连、文件传输、测试预期等与 **`docs/product/当前实现说明.md`** 一致；若有意改变产品行为，须先更新《当前实现说明》再改实现。
+11. **前端业务 API HTTP**（团队约定）：在 **`frontend-monorepo/`** 内调用鉴权中心等 **业务 REST** 时，**一律**使用 **`@y2/shared`** 的 **`Y2HttpClient`**（axios + RxJS）；**不要**与 Angular **`HttpClient`** 混用于同一业务域，以免拦截器与错误处理双栈分叉。说明见 **`frontend-monorepo/packages/shared/README.md`**。
+12. **行为基线**：路由、重连、文件传输、测试预期等与 **`docs/product/当前实现说明.md`** 一致；若有意改变产品行为，须先更新《当前实现说明》再改实现。
 
 ---
 
 ## 7. 流程约定
 
-12. **改动前阅读**：非琐碎改动前，阅读 **`docs/product/当前实现说明.md`**、**`docs/product/工作进度.md`** 及本文件相关章节（布局、命令、测试）。
-13. **以实装为准**：若设计稿或导航文与 **`docs/product/当前实现说明.md`** 矛盾，先对齐实现与《当前实现说明》。
-14. **行为变更时的文档顺序**：
+13. **改动前阅读**：非琐碎改动前，阅读 **`docs/product/当前实现说明.md`**、**`docs/product/工作进度.md`** 及本文件相关章节（布局、命令、测试）。
+14. **以实装为准**：若设计稿或导航文与 **`docs/product/当前实现说明.md`** 矛盾，先对齐实现与《当前实现说明》。
+15. **行为变更时的文档顺序**：
     1. `docs/product/当前实现说明.md`
     2. `docs/product/工作进度.md`
     3. **`agent.md`**（若命令、布局、测试分类或工程规则有变）
     4. 相关需求 / 设计 / API / Runbook
-15. **测试**：连贯代码改动后，先跑**最小必要**校验，风险或范围大时再跑全 workspace。
-16. **长驻进程**：尽量用 **tmux** 管理服务端与 watcher。
+16. **测试**：连贯代码改动后，先跑**最小必要**校验，风险或范围大时再跑全 workspace。
+17. **长驻进程**：尽量用 **tmux** 管理服务端与 watcher。
 
 ---
 
