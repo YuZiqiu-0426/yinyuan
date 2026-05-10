@@ -1,119 +1,118 @@
-# agent.md
+# agent.md（仓库指南）
 
-This file is the **single repository guide** for human contributors and AI coding agents (Claude Code, Cursor, etc.): **engineering conventions**, **process**, **layout**, **build/test commands**, and **architecture** for YinYuan / `y2m-rs`.
-
-Formerly split across `CONVENTIONS.md` and `CLAUDE.md`; those files now redirect here.
+本文件是隐元（YinYuan）仓库的**单一入口说明**：面向人类贡献者与 AI 编码助手（Claude Code、Cursor 等），汇总**工程约定**、**协作流程**、**目录与文档索引**、**构建与测试命令**、**架构与安全导航**。原根目录 `CONVENTIONS.md` 与 `CLAUDE.md` 已废止，内容并入本文件。
 
 ---
 
-## Document roles and conflict priority
+## 1. 文档角色与冲突优先级
 
-1. **`docs/当前实现说明.md`** — authoritative **what the code does today**.
-2. **`docs/工作进度.md`** — priority and task status.
-3. **`agent.md`** (this file) — how to work in the repo, commands, architecture overview, engineering rules.
-4. Other requirements / design / API / runbook documents under `docs/`.
+当多处描述不一致时，按以下顺序解释：
 
-If this file disagrees with `docs/当前实现说明.md`, **trust the implementation doc** and update `agent.md`.
+1. **`docs/当前实现说明.md`** — 当前代码**事实基线**（已实现 / 未实现）。
+2. **`docs/工作进度.md`** — 任务状态与优先级总表。
+3. **`agent.md`**（本文件）— 如何在仓库内工作、命令入口、架构概览、工程规则。
+4. **`docs/`** 下其他需求、设计、API、运维类文档。
 
----
-
-## Language
-
-- Human-facing prose may be **Chinese (Simplified)** where existing docs already use it.
-- **Code identifiers, commit messages, and public API names** stay in English unless an established exception exists.
+若本文件与 **`docs/当前实现说明.md`** 冲突，**以《当前实现说明》为准**，并尽快修正 **`agent.md`**。
 
 ---
 
-## Code size
+## 2. 语言与命名
 
-1. **Functions**: at most **50 lines** each (including blanks and comments). Split into helpers when needed.
-2. **Files**: at most **500 lines** per source file. Split by responsibility when approaching the limit.
-
----
-
-## Git workflow
-
-3. **After completing a task**: land the outcome, then **`git add`** relevant paths and **`git commit`**. Use a clear, full-sentence message describing *what* changed and *why*. Automation should commit when finishing a coherent task, not only print commands for humans.
+- 面向人的说明文可使用**简体中文**（与现有文档一致）。
+- **代码标识符、Git 提交说明、对外 API 名称**保持英文，除非已有既定例外。
 
 ---
 
-## Runtime and tooling
+## 3. 代码规模
 
-4. **tmux**: Prefer **tmux** sessions/windows for long-lived local servers and watchers; avoid scattering them across unrelated tabs without a layout.
-5. **Frontend package manager**: Under **`frontend-monorepo/`**, use **pnpm** only (`pnpm install`, `pnpm run <script>`). Do not introduce npm or Yarn for day-to-day work unless an exception is documented here.
-
----
-
-## Project conventions
-
-6. **Repository layout**: Root = docs and coordination. Rust workspace = **`y2m-rs/`**. Frontend apps = **`frontend-monorepo/`**.
-7. **Rust commands**: Run **`cargo`** from **`y2m-rs/`** (or `--manifest-path y2m-rs/Cargo.toml`). The repo root is not a Rust workspace root.
-8. **Implementation baseline**: Use **`docs/当前实现说明.md`** when describing current behavior.
-9. **What to build next**: Check **`docs/工作进度.md`** first.
-10. **Admin UI**: **`frontend-monorepo/apps/y2-manage`** (Angular). User chat Web client removed; user interaction is **CLI-only** via **`y2m`**. Multi-Agent orchestration shares the same WebSocket transport; application messages may use **`agent-collab`** on top of **`EventType::Json`** (see `docs/agent-collab-protocol-v1.md`).
-11. **Messaging baseline**: Preserve behaviors documented in **`docs/当前实现说明.md`** for routing, reconnect, file transfer, and tests unless you intentionally change the product and update that doc.
+1. **函数**：单函数不超过 **50 行**（含空行与注释）；超出则拆小函数或子模块。
+2. **文件**：单源码文件不超过 **500 行**；接近上限时按职责拆分（如增加 `mod` 或并列模块）。
 
 ---
 
-## Process conventions
+## 4. Git 工作流
 
-12. **Read-before-change**: For non-trivial work, read **`docs/当前实现说明.md`**, **`docs/工作进度.md`**, and the relevant sections of **this file** (layout, commands, tests).
-13. **Change against reality**: If design or navigation text disagrees with **`docs/当前实现说明.md`**, align implementation and docs to the implementation doc first.
-14. **Document update order** when behavior changes:
+3. **完成一项连贯任务后**：落地代码，再 **`git add`** 相关路径并 **`git commit`**。提交信息用完整句子说明**改了什么、为什么**。自动化助手在结束连贯任务时应实际提交，而非只打印命令让用户执行。
+
+---
+
+## 5. 运行时与工具
+
+4. **tmux**：本地常驻服务、watch 等优先放在 **tmux** 会话/窗口中，避免无布局地散落在多个无关终端页签。
+5. **前端包管理**：在 **`frontend-monorepo/`** 内仅使用 **pnpm**（`pnpm install`、`pnpm run <script>`）。日常不要引入 npm 或 Yarn，除非在本文件中有书面例外。
+
+---
+
+## 6. 项目约定
+
+6. **仓库布局**：根目录以文档与协作为主；Rust 工作区在 **`y2m-rs/`**；前端应用在 **`frontend-monorepo/`**。
+7. **Rust 命令**：所有 **`cargo`** 在 **`y2m-rs/`** 下执行（或使用 `--manifest-path y2m-rs/Cargo.toml`）。仓库根**不是** Rust workspace 根。
+8. **实现描述**：以 **`docs/当前实现说明.md`** 为准描述「系统现在怎么做」。
+9. **排期与下一步**：优先查阅 **`docs/工作进度.md`**。
+10. **管理端与交互**：管理端 Web 为 **`frontend-monorepo/apps/y2-manage`**（Angular）。用户侧聊天 Web 已移除；用户交互为 **CLI-only**（**`y2m`**）。多 Agent 编排复用同一 WebSocket；业务消息可在 **`EventType::Json`** 之上承载 **`agent-collab`**（见 **`docs/agent-collab-protocol-v1.md`**）。
+11. **行为基线**：路由、重连、文件传输、测试预期等与 **`docs/当前实现说明.md`** 一致；若有意改变产品行为，须先更新《当前实现说明》再改实现。
+
+---
+
+## 7. 流程约定
+
+12. **改动前阅读**：非琐碎改动前，阅读 **`docs/当前实现说明.md`**、**`docs/工作进度.md`** 及本文件相关章节（布局、命令、测试）。
+13. **以实装为准**：若设计稿或导航文与 **`docs/当前实现说明.md`** 矛盾，先对齐实现与《当前实现说明》。
+14. **行为变更时的文档顺序**：
     1. `docs/当前实现说明.md`
     2. `docs/工作进度.md`
-    3. **`agent.md`** if commands, layout, tests, or engineering rules changed
-    4. Related requirement / design / API / runbook docs
-15. **Testing**: After a coherent code change, run the narrowest meaningful check first, then broader workspace tests when risk warrants it.
-16. **Long-lived processes**: Keep servers/watchers in **tmux** where practical.
+    3. **`agent.md`**（若命令、布局、测试分类或工程规则有变）
+    4. 相关需求 / 设计 / API / Runbook
+15. **测试**：连贯代码改动后，先跑**最小必要**校验，风险或范围大时再跑全 workspace。
+16. **长驻进程**：尽量用 **tmux** 管理服务端与 watcher。
 
 ---
 
-## Where this file is referenced
+## 8. 本文件的引用关系
 
-- **Cursor**: `.cursor/rules/yinyuan-conventions.mdc` points here for assisted sessions.
-- **Stubs**: `CONVENTIONS.md` and `CLAUDE.md` redirect to this file for backward compatibility.
-- Security and auth rules live under **`docs/`** (e.g. `docs/加密验证方案.md`, `docs/权限矩阵与默认角色模板-v1.md`). If they conflict with older requirement docs such as `需求v1.md`, **prefer the security docs**.
-
----
-
-## Repository layout (docs index)
-
-The Rust workspace is **`y2m-rs/`**. The repo root holds coordination and design docs, for example:
-
-- `需求v1.md` — original requirements (v1).
-- `docs/当前实现说明.md` — implementation status; read before new work.
-- `docs/加密验证方案.md` — transport encryption, device trust, IP allowlists, key lifecycle.
-- `docs/统一认证中心详细设计-v1.md` — auth-service architecture, JWT, CLI device-factor auth.
-- `docs/统一认证中心API定义-v1.md` — auth API contracts and error codes.
-- `docs/权限矩阵与默认角色模板-v1.md` — RBAC templates and atomic permissions.
-- `docs/配置与密钥管理规范-v1.md` — env secrets, JWT rotation, baselines.
-- `编译部署文档.md` — build and deployment notes.
-- `使用手册.md` — user manual.
-- `y2m-rs/docs/quickstart.md` — quickstart for server and CLI.
+- **Cursor**：**`.cursor/rules/yinyuan-conventions.mdc`** 指向本文件，供辅助会话加载同一套规则。
+- **安全与鉴权**：以 **`docs/`** 下专项为准（如 **`docs/加密验证方案.md`**、**`docs/权限矩阵与默认角色模板-v1.md`**）。若与旧需求（如 **`需求v1.md`**）冲突，**以安全类设计文档为准**。
 
 ---
 
-## Build and run
+## 9. 仓库布局与文档索引
+
+Rust 工作区为 **`y2m-rs/`**。根目录常见设计/说明文档示例：
+
+- **`需求v1.md`** — 原始需求（v1）。
+- **`docs/当前实现说明.md`** — 实现状态；接新活前先读。
+- **`docs/加密验证方案.md`** — 传输加密、设备信任、IP 白名单、密钥生命周期。
+- **`docs/统一认证中心详细设计-v1.md`** — auth-service、JWT、CLI 设备因子等。
+- **`docs/统一认证中心API定义-v1.md`** — 鉴权 API 与错误码。
+- **`docs/权限矩阵与默认角色模板-v1.md`** — RBAC 与原子权限。
+- **`docs/配置与密钥管理规范-v1.md`** — 环境变量密钥、JWT 轮换、安全基线。
+- **`编译部署文档.md`** — 构建与部署笔记。
+- **`使用手册.md`** — 终端用户说明。
+- **`y2m-rs/docs/quickstart.md`** — 起服务与 CLI 的快速上手。
+
+---
+
+## 10. 构建与运行
 
 ```bash
 cd y2m-rs
-cargo build                      # debug workspace
-cargo build --release            # release in target/release/
-cargo build -p y2m               # CLI only
-cargo build -p y2m-server       # server only
+cargo build                      # 全 workspace 调试构建
+cargo build --release            # release 产物在 target/release/
+cargo build -p y2m               # 仅 CLI
+cargo build -p y2m-server        # 仅服务端
 ```
 
-Binaries:
+产物说明：
 
-- **`y2m-server`** — WebSocket relay. Default `127.0.0.1:8080`; override with **`Y2M_SERVER_ADDR`**. No CLI flags.
-- **`y2m`** — CLI: **`init | run | send | chat`**.
+- **`y2m-server`** — WebSocket 中继；默认 **`127.0.0.1:8080`**，可用环境变量 **`Y2M_SERVER_ADDR`** 覆盖；无命令行参数。
+- **`y2m`** — 客户端 CLI：**`init | run | send | chat`**。
 
-Typical loop: start server, `y2m init --config alice.json ...`, then `y2m chat --config alice.json` (or `y2m run` for passive mode). Full walkthrough: **`y2m-rs/docs/quickstart.md`**.
+典型流程：起服务端 → **`y2m init --config alice.json ...`** → **`y2m chat --config alice.json`**（或被动模式 **`y2m run`**）。完整步骤见 **`y2m-rs/docs/quickstart.md`**。
 
 ---
 
-## Tests
+## 11. 测试
 
 ```bash
 cd y2m-rs
@@ -124,60 +123,60 @@ cargo test --test file_transfer_v3
 cargo test --test cli_process_e2e -- --nocapture
 ```
 
-**Integration tests** (`y2m-rs/tests/`):
+**集成测试**（**`y2m-rs/tests/`**）两类：
 
-1. **In-process** (`text_e2e.rs`, `json_e2e.rs`, `file_transfer_v3.rs`, …): `y2m_server::serve_with_listener_and_config` on ephemeral ports, `y2m_client_core` APIs. Helpers in `tests/support/mod.rs`.
-2. **CLI e2e** (`cli_process_e2e.rs`, `cli_file_*_e2e.rs`, `cli_reconnect_e2e.rs`, …): real binaries via `tests/support/cli.rs`. Slower; some use **`serial_test`**.
+1. **进程内**：如 `text_e2e.rs`、`json_e2e.rs`、`file_transfer_v3.rs` 等，在临时端口起 **`y2m_server::serve_with_listener_and_config`**，经 **`y2m_client_core`** 驱动；辅助逻辑见 **`tests/support/mod.rs`**。
+2. **CLI 子进程 e2e**：如 `cli_process_e2e.rs`、`cli_file_*_e2e.rs`、`cli_reconnect_e2e.rs` 等，通过 **`tests/support/cli.rs`** 起真实二进制；较慢，部分用 **`serial_test`**。
 
-Prefer in-process tests unless you need CLI parsing, stdin-driven chat, or process-level reconnect.
+除非必须覆盖 CLI 解析、stdin 驱动聊天或进程级重连，**优先写进程内测试**。
 
 ---
 
-## Architecture
+## 12. 架构（y2m-rs）
 
-```
+```text
 y2m-rs/
-  crates/common/       -> y2m-common       (protocol types)
-  crates/server/       -> y2m-server       (WebSocket relay)
-  crates/client-core/  -> y2m-client-core  (transport, framing, plugins)
-  src/                 -> y2m              (CLI)
+  crates/common/       -> y2m-common       （协议类型等）
+  crates/server/       -> y2m-server       （WebSocket 中继）
+  crates/client-core/  -> y2m-client-core  （传输、组帧、插件分发）
+  src/                 -> y2m              （CLI）
 ```
 
-### Protocol (`crates/common`)
+### 12.1 协议（`crates/common`）
 
-Protocol **`v3`** (`PROTOCOL_VERSION`). Control plane: JSON **`Packet<T>`** with `kind` of `init | init_ack | heartbeat | heartbeat_ack | event | ack | error`. **`EventType`**: `text`, `json`, `command`, `command_result`, `file_offer`, `file_accept`, `file_reject`, `file_complete`, `file_abort`. File bytes: **`BinaryChunkHeader`**, magic **`Y2MB`**, `frame_type` 1 = file chunk on the same WebSocket. **`Endpoint { groupName, clientName }`**. **`Endpoint::server()`** reserved for server-originated packets.
+协议版本 **`v3`**（**`PROTOCOL_VERSION`**）。控制面为 JSON **`Packet<T>`**，**`kind`** 含 **`init | init_ack | heartbeat | heartbeat_ack | event | ack | error`**。**`EventType`** 含 **`text`、`json`、`command`、`command_result`、`file_offer`、`file_accept`、`file_reject`、`file_complete`、`file_abort`**。文件字节走 **`BinaryChunkHeader`**，魔数 **`Y2MB`**，**`frame_type` = 1** 表示文件分片，与 JSON 共用同一 WebSocket。**`Endpoint { groupName, clientName }`** 寻址；**`Endpoint::server()`** 预留给服务端来源包。
 
-### Server (`crates/server`)
+### 12.2 服务端（`crates/server`）
 
-**`ws.rs`**: axum WebSocket; **`init::handle_init`** validates init, rejects duplicate `(group, client)`, returns **`init_ack`**. **`router.rs`**: `text`, `json`, `command`, `command_result`, and all **`file_*`** support **unicast** (`target.clientName` set) or **group broadcast** (`target.clientName` omitted; same group, all sessions except sender — see **`docs/当前实现说明.md`** §3.2). **`session.rs`**: **`SessionStore`**. **`transfer.rs`**: **`TransferRegistry`**; **binary chunks** only after each receiver leg sends **`file_accept`**. Heartbeat timeout closes the connection and frees the name.
+**`ws.rs`**：axum WebSocket；**`init::handle_init`** 校验 init、拒绝同组重名、返回 **`init_ack`**。**`router.rs`**：**`text` / `json` / `command` / `command_result` / 全部 `file_*`** 支持**单播**（填写 **`target.clientName`**）或**组播**（省略 **`clientName`**，同组除发送者外，见 **`docs/当前实现说明.md`** §3.2）。**`session.rs`**：**`SessionStore`**。**`transfer.rs`**：**`TransferRegistry`**；**二进制分片**仅在对应接收腿 **`file_accept`** 后转发。心跳超时关连接并释放名称。
 
-### Client core (`crates/client-core`)
+### 12.3 客户端核心（`crates/client-core`）
 
-**`ClientCore::connect()`** → WS, **`init`**, **`init_ack`**, **`ClientRuntime`**. **`runtime.dispatch_next()`** / **`IncomingRuntimeMessage`**; **`PluginRegistry`** dispatches **`EventPacket`s**. Outbound: **`build_*_packet`** in **`command_bus.rs`**, **`send_json_packet` / `send_binary`**. No UI or file policy inside core.
+**`ClientCore::connect()`** 建链、发 **`init`**、等 **`init_ack`**、得到 **`ClientRuntime`**。入站经 **`runtime.dispatch_next()`** / **`IncomingRuntimeMessage`**；**`PluginRegistry`** 按 **`EventType`** 分发 **`EventPacket`**。出站经 **`command_bus.rs`** 的 **`build_*_packet`** 与 **`send_json_packet` / `send_binary`**。核心不含 UI 与文件策略。
 
-### CLI (`src/`)
+### 12.4 CLI（`src/`）
 
-Thin shell: **`cli.rs`**, **`cmd_*.rs`**, **`plugin.rs`** (**`ConsolePlugin`**), **`state/`**, **`file_store.rs`**, **`file_flow.rs`**. **`LocalFileStore`** / **`LocalFileTransfer`** / **`LocalFileState`** — use **`move_to_incoming()`** / **`transition_to()`** structured errors when extending the state machine. **`main.rs::connect_with_console_plugin_with_retry`**: reconnect for **`run`** / **`chat`**; clears file state; **`reconnect_replays`** — see **`docs/当前实现说明.md`** §3.5.
+薄封装：**`cli.rs`**、各 **`cmd_*.rs`**、**`plugin.rs`**（**`ConsolePlugin`**）、**`state/`**、**`file_store.rs`**、**`file_flow.rs`**。本地文件态统一 **`LocalFileStore` / `LocalFileTransfer` / `LocalFileState`**；扩展状态机时继续使用 **`move_to_incoming()`** / **`transition_to()`** 的结构化错误风格。**`main.rs::connect_with_console_plugin_with_retry`** 服务 **`run` / `chat`** 重连、清理文件态、**`reconnect_replays`**，见 **`docs/当前实现说明.md`** §3.5。
 
-### Security and auth (navigation)
+### 12.5 安全与鉴权（导航摘要）
 
-- **`auth-service`** (planned): single identity/permission source; **`y2m-server`** stays a message bus.
-- **`init`**: token validation via **`POST /auth/introspect`** (planned; **`InitPayload.token`** integration is the next security milestone).
-- **RBAC** maps to **`EventType`s** (`text.send`, `json.send`, …); future: **`task.manage`**, **`shared_layer.lock`**, etc.
-- **Device trust** for CLI: fingerprint MAC + IP + OS user; first login admin approval; trust token thereafter.
-- **Session states**: **`active` / `suspended_readonly` / `revoked`** — **`revoked`** drops the socket immediately.
-- **TLS**: **`wss://`** cross-machine; local **`ws://`** on **`127.0.0.1`**. See **`docs/加密验证方案.md`**.
+- **`auth-service`**（规划中）：唯一身份与权限源；**`y2m-server`** 保持消息总线角色。
+- **`init`**：规划在连接时经 **`POST /auth/introspect`** 校验 token；**`InitPayload.token`** 接入是下一安全里程碑。
+- **RBAC** 与 **`EventType`** 对应（如 **`text.send`** 等）；后续可扩展 **`task.manage`**、**`shared_layer.lock`** 等。
+- **CLI 设备信任**：指纹含 MAC、IP、OS 用户等；首登待审；后续信任 token。
+- **会话态**：**`active` / `suspended_readonly` / `revoked`**；**`revoked`** 须立即断链。
+- **TLS**：跨机 **`wss://`**；本机开发可用 **`ws://`** 访问 **`127.0.0.1`**。详见 **`docs/加密验证方案.md`**。
 
-### Cross-platform command execution
+### 12.6 跨平台命令执行
 
-Use **`y2m_common::default_shell_program()`** / **`default_shell_arg()`** — **`cmd /C`** on Windows, **`sh -c`** elsewhere — for **`EventType::Command`**; do not hard-code a shell.
+对 **`EventType::Command`** 使用 **`y2m_common::default_shell_program()`** 与 **`default_shell_arg()`**（Windows 为 **`cmd /C`**，否则 **`sh -c`**），不要写死 shell。
 
 ---
 
-## Conventions worth preserving (codebase)
+## 13. 代码库中值得保持的约定
 
-- **JSON wire format is camelCase** (`#[serde(rename_all = "camelCase")]`; **`ClientConfig`** on disk: `serverUrl`, `groupName`, …).
-- **UTF-8 Chinese** in logs and user-visible CLI output is expected; do not strip it.
-- **File control plane** may unicast or group-broadcast like other events; **binary chunks** only to legs that completed **`file_accept`**. Prefer explicit **`--to`** when the product flow is single-recipient.
-- **All file state changes** go through **`LocalFileStore` / `LocalFileTransfer`** APIs; extend **`LocalFileState`** and transitions instead of parallel booleans.
-- **Reconnect** must clear local file state before re-**`init`** (**`ConsoleState::clear_file_transfer_state()`** and any new **`ConsoleState`** fields you add).
+- **JSON 线路为 camelCase**（**`#[serde(rename_all = "camelCase")]`**；磁盘 **`ClientConfig`** 如 **`serverUrl`**、**`groupName`** 等）。
+- **日志与用户可见 CLI 输出**允许 UTF-8 中文，不要随意剔除或强行 ASCII 化。
+- **文件控制面**可与其它事件一样单播或组播；**二进制分片**仅发往已完成 **`file_accept`** 的接收腿。产品上要「单收方」时优先显式 **`--to`** / 目标。
+- **文件状态变更**一律经 **`LocalFileStore` / `LocalFileTransfer`** API；新阶段用 **`LocalFileState`** 与迁移表扩展，避免平行布尔字段。
+- **重连**须在再次 **`init`** 前清理本地文件相关状态（**`ConsoleState::clear_file_transfer_state()`** 路径）；若给 **`ConsoleState`** 增加新字段，重连逻辑中也要一并重置。

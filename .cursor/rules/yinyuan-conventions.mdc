@@ -1,10 +1,10 @@
 ---
-description: Repository engineering standards (see agent.md at repo root)
+description: 仓库工程约定与导航（见根目录 agent.md）
 alwaysApply: true
 ---
 
-# YinYuan conventions
+# YinYuan 约定
 
-All project engineering rules and repository navigation for agents live in **`agent.md`** at the **repository root** (plain Markdown).
+全仓工程规则与仓库导航（含函数/文件行数、Git、tmux、pnpm、`cargo` 与测试入口、架构说明）写在仓库根目录的 **`agent.md`**（简体中文 Markdown）。
 
-Follow that file for: per-function and per-file line limits, Git commit expectations after tasks, `cargo` / test entry points, and architecture orientation.
+请遵循该文件中的约定。

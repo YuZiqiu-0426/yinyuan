@@ -20,9 +20,7 @@ YinYuan/
 │   └── tests/              ← 进程内 e2e + CLI 进程 e2e
 ├── frontend-monorepo/      ← 前端 monorepo（仅管理端 y2-manage）
 ├── docs/                   ← 设计、规范、进度、实现说明
-├── agent.md                ← 工程约定 + 仓库导航 + 构建/测试 + 架构（合并原 CONVENTIONS / CLAUDE）
-├── CONVENTIONS.md          ← 重定向至 agent.md（兼容旧链接）
-├── CLAUDE.md               ← 重定向至 agent.md（兼容旧链接）
+├── agent.md                ← 工程约定 + 仓库导航 + 构建/测试 + 架构（简体中文，仓库单一指南）
 └── README.md               ← 本文件（项目总入口）
 ```
 
@@ -60,7 +58,7 @@ cargo build --release
 |------|------|--------|
 | [`docs/当前实现说明.md`](docs/当前实现说明.md) | **实现事实基线**——代码现在做了什么、还没做什么 | 🔴 最高 |
 | [`docs/工作进度.md`](docs/工作进度.md) | 任务状态总表（P0/P1/P2） | 🔴 最高 |
-| [`agent.md`](agent.md) | 工程约定、Git/tmux/pnpm、仓库布局、`cargo`/测试入口、架构与安全导航 | 🟡 高 |
+| [`agent.md`](agent.md) | 工程约定、Git/tmux/pnpm、仓库布局、`cargo`/测试入口、架构与安全导航（简体中文） | 🟡 高 |
 
 > **冲突规则**：若文档之间描述不一致，以 `当前实现说明.md` > `工作进度.md` > `agent.md` > 其他设计/API 文档为准。
 
