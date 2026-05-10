@@ -7,7 +7,7 @@
 | 目录 | 内容 |
 |------|------|
 | [`meta/`](meta/) | 工程开发标准、文档导航与阅读顺序 |
-| [`product/`](product/) | 当前实现说明、工作进度、任务清单（v1 / v2） |
+| [`product/`](product/) | 当前实现说明、工作进度、任务清单（v1 / v2）、[`y2-manage-框架搭建任务表.md`](product/y2-manage-框架搭建任务表.md) |
 | [`auth/`](auth/) | 统一认证中心需求、详细设计、API、权限、会话状态机、错误码、安全演练、配置与密钥、传输加密、数据库设计 |
 | [`ops/`](ops/) | 编译部署、使用手册、上线与回滚 Runbook |
 | [`orchestration/`](orchestration/) | 多 Agent 应用层协作协议（`agent-collab`） |
