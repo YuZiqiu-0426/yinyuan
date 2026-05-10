@@ -21,10 +21,12 @@
 | 项 | 状态 | 备注 |
 |----|------|------|
 | Angular 应用 + `ng build` | 已有 | `@angular/build:application` |
-| 全局 Tailwind v4 | 已有 | `src/styles.css` 中 `@import "tailwindcss"`；`.postcssrc.json` |
-| 路由 | 占位 | `app.routes.ts` 多为空；根组件仍为默认欢迎页级模板 |
-| `@y2/shared` | 已有 | 权限常量、`Y2HttpClient` 等；管理端业务尚未接入 |
-| `auth-service` | 未接 | 登录与各 Admin API 依赖后端 AU-* 里程碑 |
+| 全局 Tailwind v4 | 已有 | `src/styles.css` 中 `@import "tailwindcss"`；`.postcssrc.json`；CSS 变量主题基线 |
+| 路由与壳 | 已有 | `/login`、`/`（`MainShell` + 子路由）、`**` → 404；`loadComponent` 懒加载；`authGuard` / `loginShellGuard` |
+| 环境与 HTTP | 已有 | `environment.*` + `fileReplacements`；`provideCore()` 提供带拦截器的 `Y2HttpClient`（Bearer、`401→refresh` 一次后重试） |
+| 登录与会话（MW-01/02 部分） | 已有 | `AuthApiService` + `useAuthMock`；登录表单与错误码中文；内存 `accessToken`；`refreshTokens` 走独立 axios 避免递归；**MFA 未做** |
+| `@y2/shared` | 已有 | 管理端经 `Y2_HTTP_CLIENT`；`ng serve` 见 README paths + `prebundle.exclude` |
+| `auth-service` | 未接 | 生产登录/刷新需真实后端与 HttpOnly refresh + CSRF；Admin API 仍依赖 AU-* |
 
 ## 4. 总览：阶段 ↔ 里程碑 ↔ MW
 
@@ -43,12 +45,12 @@
 
 **目标**：后续功能开发不因工具链或约定返工。
 
-- [ ] **目录与命名**：约定 feature 目录结构（如 `src/app/core`、`shared`、`features/*`），与 Angular 风格指南一致。
-- [ ] **环境配置**：新增 `environment.ts` / `environment.development.ts`（或 v17+ 等价方案），至少包含 **`apiBaseUrl`**、**`authIssuer`** 等占位；生产构建不包含敏感默认值。
+- [x] **目录与命名**：约定 feature 目录结构（如 `src/app/core`、`shared`、`features/*`），与 Angular 风格指南一致。
+- [x] **环境配置**：新增 `environment.ts` / `environment.development.ts`（或 v17+ 等价方案），至少包含 **`apiBaseUrl`**、**`authIssuer`** 等占位；生产构建不包含敏感默认值。
 - [ ] **路径别名**：若需 `@app/*` 等，在 `tsconfig` 与 `angular.json` 中一次性配好。
-- [ ] **Lint / Format**：与 monorepo 统一（ESLint、Prettier 或 Angular 默认；**Tab Size 2** 见 [`meta/文档导航-v1.md`](../meta/文档导航-v1.md) §8）。
-- [ ] **HTTP 基类**：封装 `Y2HttpClient` 单例或工厂（如 `provideAppApi()`），统一 `baseURL`、错误映射、401 跳转策略的挂载点（可与 Phase 2 一起做，但须在 Phase 2 前定接口）。
-- [ ] **验收**：`pnpm --filter y2-manage build` / `test`（若有）无回归；README 或 `apps/y2-manage/README.md` 中写清启动命令与环境变量说明。
+- [ ] **Lint / Format**：与 monorepo 统一（ESLint、Prettier 或 Angular 默认；**Tab Size 2** 见 [`meta/文档导航-v1.md`](../meta/文档导航-v1.md) §8）。当前在 `apps/y2-manage/README.md` 注明「待与 monorepo 统一」。
+- [x] **HTTP 基类**：封装 `Y2HttpClient` 单例或工厂（如 `provideAppApi()`），统一 `baseURL`、错误映射、401 跳转策略的挂载点（可与 Phase 2 一起做，但须在 Phase 2 前定接口）。
+- [x] **验收**：`pnpm --filter y2-manage build` / `test`（若有）无回归；README 或 `apps/y2-manage/README.md` 中写清启动命令与环境变量说明。
 
 ## 6. Phase 1 — 应用壳与路由骨架
 
@@ -56,26 +58,26 @@
 
 ### 6.1 布局
 
-- [ ] **根布局组件**：顶栏（产品名、当前用户、登出入口占位）、侧栏导航（菜单项可先占位链接）、主内容区 `<router-outlet>`。
-- [ ] **响应式**：侧栏在窄屏可折叠（Tailwind `md:` 等）；键盘可达性（焦点顺序、`aria-*`）。
+- [x] **根布局组件**：顶栏（产品名、当前用户、登出入口占位）、侧栏导航（菜单项可先占位链接）、主内容区 `<router-outlet>`。
+- [x] **响应式**：侧栏在窄屏可折叠（Tailwind `md:` 等）；键盘可达性（焦点顺序、`aria-*`）。
 - [ ] **空状态与加载**：全局 `router-outlet` 外层统一加载指示占位（可与 Phase 2 共用设计 token）。
 
 ### 6.2 路由
 
-- [ ] **路由表**：至少划分 **`/login`**、**`/`（受保护）**、**`/**` 回退**；懒加载各 feature 模块（用户、角色、设备等可拆为 `routes.ts`）。
-- [ ] **默认重定向**：已登录访问 `/login` → 首页；未登录访问受保护路由 → `/login`。
-- [ ] **路由守卫**：`canActivate` / `canMatch` 占位：先以「内存中是否有 token」伪实现，待 Phase 2 接真实会话。
-- [ ] **404**：未知路径进入统一错误页。
+- [x] **路由表**：至少划分 **`/login`**、**`/`（受保护）**、**`/**` 回退**；懒加载各 feature 模块（用户、角色、设备等可拆为 `routes.ts`）。
+- [x] **默认重定向**：已登录访问 `/login` → 首页；未登录访问受保护路由 → `/login`。
+- [x] **路由守卫**：`canActivate` / `canMatch` 占位：先以「内存中是否有 token」伪实现，待 Phase 2 接真实会话。
+- [x] **404**：未知路径进入统一错误页。
 
 ### 6.3 样式与主题
 
-- [ ] **清除占位**：移除或替换 Angular 默认大段欢迎 HTML/CSS，避免与 Tailwind 混用产生双体系。
-- [ ] **设计基线**：字体、圆角、主色在 `styles.css` 或 Tailwind `@theme`（若采用 v4 主题扩展）中集中定义。
+- [x] **清除占位**：移除或替换 Angular 默认大段欢迎 HTML/CSS，避免与 Tailwind 混用产生双体系。
+- [x] **设计基线**：字体、圆角、主色在 `styles.css` 或 Tailwind `@theme`（若采用 v4 主题扩展）中集中定义。
 
 ### 6.4 验收
 
 - [ ] 手工：冷启动 `pnpm --filter y2-manage start`，导航与刷新后路由状态正确。
-- [ ] 构建：`ng build` 无 budget 违规（注意组件样式体积）。
+- [x] 构建：`ng build` 无 budget 违规（注意组件样式体积）。
 
 ## 7. Phase 2 — 登录与会话（MW-01 / MW-02）
 
@@ -83,22 +85,22 @@
 
 ### 7.1 MW-01 登录页
 
-- [ ] 表单：用户名 + 密码；校验与可访问性（`label`、`aria-invalid`）。
+- [x] 表单：用户名 + 密码；校验与可访问性（`label`、`aria-invalid`）。
 - [ ] **MFA**：`super_admin` **强制** MFA 流程（与 [`docs/auth/统一认证与双Web端需求规格-v1.md`](../auth/统一认证与双Web端需求规格-v1.md) 一致）；步骤 UI（如 TOTP 二次页）。
-- [ ] 错误展示：接口错误码 → 用户可读中文（对齐 API 文档错误语义）。
-- [ ] 登录成功：写入 token（策略二选一并在文档中固定：**内存 + refresh cookie** 或 **仅内存**，需与 XSS/CSRF 策略一致，见加密与配置规范）。
+- [x] 错误展示：接口错误码 → 用户可读中文（对齐 API 文档错误语义）。
+- [x] 登录成功：写入 token（当前：**仅内存** accessToken + session 元数据；真实 Web 的 refresh 依赖 HttpOnly Cookie，见 README 与加密规范；**MFA 前为占位策略**）。
 
 ### 7.2 MW-02 会话管理
 
-- [ ] **Access Token 静默刷新**：定时/拦截 401 触发 refresh；`Y2HttpClient` 拦截器链中实现，避免与业务服务重复逻辑。
-- [ ] **登出**：清 token、清定时器、重定向 `/login`；可选服务端 revoke（有 API 时）。
-- [ ] **路由守卫**：与刷新逻辑协同，避免刷新竞态导致误跳登录。
-- [ ] **401 统一处理**：业务请求 401 → 尝试刷新一次 → 仍失败则登出。
+- [x] **Access Token 静默刷新**：`Y2HttpClient` 拦截器在 **401** 时触发一次 `refreshTokens`（独立 axios，避免与拦截器递归）；**未**做定时主动刷新。
+- [x] **登出**：清内存 token / session 字段并重定向 `/login`；无服务端 revoke（待有 API）。
+- [ ] **路由守卫**：与刷新逻辑协同，避免刷新竞态导致误跳登录（当前为单次 refresh + 单次重试；高并发竞态待有后端再压测）。
+- [x] **401 统一处理**：业务请求 401 → 尝试刷新一次 → 仍失败则登出。
 
 ### 7.3 验收
 
 - [ ] 有后端：走通登录 + MFA + 刷新 + 登出全流程。
-- [ ] 无后端：Mock 返回与真实 JSON 形状一致，`ng serve` 可演示完整 UI 流。
+- [x] 无后端：`useAuthMock` 下 Mock 与文档 JSON 形状一致，`ng serve` 可演示登录与错误（**不含 MFA 全流**）。
 
 ## 8. Phase 3 — 用户管理（MW-03 / MW-04）
 
@@ -195,4 +197,6 @@
 
 | 日期 | 摘要 |
 |------|------|
+| 2026-05-10 | Phase 0/1 落地：环境切片、`provideCore`/`Y2HttpClient`、占位守卫、壳路由与 404；任务表 §3/§5/§6 同步 |
+| 2026-05-10 | Phase 2 部分：登录表单、`AuthApiService`、Mock、`401→refresh` 拦截器、错误码中文；MFA 与有后端验收仍待 |
 | 2026-05-12 | 初版：分 Phase 0～7 + 横向项 + AU 依赖简表；与任务清单 MW、工作进度 §5.3 对齐 |

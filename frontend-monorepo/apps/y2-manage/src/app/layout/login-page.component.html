@@ -1,0 +1,62 @@
+<div class="flex min-h-screen flex-col items-center justify-center gap-6 bg-[var(--y2-bg)] p-6 text-[var(--y2-fg)]">
+  <div class="w-full max-w-md rounded-lg border border-[var(--y2-border)] bg-[var(--y2-surface)] p-6 shadow-sm">
+    <h1 class="text-center text-2xl font-semibold text-[var(--y2-primary)]">隐元管理</h1>
+    <p class="mt-2 text-center text-sm text-[var(--y2-muted)]">使用用户名与密码登录</p>
+
+    @if (errorText(); as err) {
+      <p class="mt-4 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-200" role="alert">
+        {{ err }}
+      </p>
+    }
+
+    <form class="mt-6 flex flex-col gap-4" (ngSubmit)="onSubmit()" [formGroup]="form">
+      <div class="flex flex-col gap-1">
+        <label class="text-sm font-medium" for="login-username">用户名</label>
+        <input
+          id="login-username"
+          type="text"
+          autocomplete="username"
+          formControlName="username"
+          class="rounded-md border border-[var(--y2-border)] px-3 py-2 text-sm outline-none ring-[var(--y2-primary)] focus:ring-2"
+          [attr.aria-invalid]="form.controls.username.invalid && form.controls.username.touched"
+          aria-describedby="login-username-hint"
+        />
+        <span id="login-username-hint" class="text-xs text-[var(--y2-muted)]">必填</span>
+        @if (form.controls.username.invalid && form.controls.username.touched) {
+          <span class="text-xs text-red-600 dark:text-red-400" role="alert">请输入用户名</span>
+        }
+      </div>
+
+      <div class="flex flex-col gap-1">
+        <label class="text-sm font-medium" for="login-password">密码</label>
+        <input
+          id="login-password"
+          type="password"
+          autocomplete="current-password"
+          formControlName="password"
+          class="rounded-md border border-[var(--y2-border)] px-3 py-2 text-sm outline-none ring-[var(--y2-primary)] focus:ring-2"
+          [attr.aria-invalid]="form.controls.password.invalid && form.controls.password.touched"
+        />
+        @if (form.controls.password.invalid && form.controls.password.touched) {
+          <span class="text-xs text-red-600 dark:text-red-400" role="alert">请输入密码</span>
+        }
+      </div>
+
+      <button
+        type="submit"
+        class="mt-2 rounded-md bg-[var(--y2-primary)] px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+        [disabled]="submitting()"
+      >
+        {{ submitting() ? '登录中…' : '登录' }}
+      </button>
+    </form>
+
+    <p class="mt-4 text-xs text-[var(--y2-muted)]">
+      Mock 模式（<code class="rounded bg-black/5 px-1 dark:bg-white/10">useAuthMock: true</code>）下密码填
+      <code class="rounded bg-black/5 px-1 dark:bg-white/10">wrong</code> 可模拟失败；其他任意非空密码视为成功。
+    </p>
+    <p class="mt-2 text-xs text-[var(--y2-muted)]">
+      仅看壳布局可将 <code class="rounded bg-black/5 px-1 dark:bg-white/10">devBypassAuth</code> 设为 true（勿用于生产）。
+    </p>
+  </div>
+</div>

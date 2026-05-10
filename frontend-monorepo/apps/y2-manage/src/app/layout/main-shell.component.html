@@ -1,0 +1,71 @@
+<div class="flex min-h-screen flex-col bg-[var(--y2-bg)] text-[var(--y2-fg)]">
+  <header
+    class="flex h-14 shrink-0 items-center justify-between border-b border-[var(--y2-border)] px-4"
+  >
+    <div class="flex items-center gap-3">
+      <button
+        type="button"
+        class="inline-flex h-9 items-center justify-center rounded-md border border-[var(--y2-border)] px-2 text-sm md:hidden"
+        (click)="toggleNav()"
+        [attr.aria-expanded]="navOpen()"
+        aria-controls="app-sidebar"
+      >
+        菜单
+      </button>
+      <span class="text-lg font-semibold tracking-tight text-[var(--y2-primary)]">隐元管理</span>
+    </div>
+    <div class="flex items-center gap-2 text-sm">
+      @if (auth.hasToken()) {
+        <span class="text-[var(--y2-muted)]">已登录（占位会话）</span>
+      } @else if (devBypassAuth) {
+        <span class="text-amber-700 dark:text-amber-400">开发绕过认证</span>
+      } @else {
+        <span class="text-[var(--y2-muted)]">未登录</span>
+      }
+      <button
+        type="button"
+        class="rounded-md border border-[var(--y2-border)] px-3 py-1.5 hover:bg-black/5 dark:hover:bg-white/10"
+        (click)="logout()"
+      >
+        登出
+      </button>
+    </div>
+  </header>
+
+  <div class="flex min-h-0 flex-1">
+    @if (navOpen()) {
+      <button
+        type="button"
+        class="fixed inset-0 z-20 bg-black/40 md:hidden"
+        (click)="toggleNav()"
+        aria-label="关闭侧栏"
+      ></button>
+    }
+
+    <aside
+      id="app-sidebar"
+      class="fixed inset-y-14 left-0 z-30 w-56 shrink-0 border-r border-[var(--y2-border)] bg-[var(--y2-surface)] transition-transform duration-200 md:static md:inset-auto md:z-0 md:flex md:h-auto md:min-h-0 md:translate-x-0"
+      [class.max-md:-translate-x-full]="!navOpen()"
+      [class.max-md:translate-x-0]="navOpen()"
+    >
+      <nav class="flex flex-col gap-1 p-3 text-sm" aria-label="主导航">
+        <a
+          routerLink="/dashboard"
+          routerLinkActive="bg-[var(--y2-primary)]/10 font-medium text-[var(--y2-primary)]"
+          [routerLinkActiveOptions]="{ exact: true }"
+          class="rounded-md px-3 py-2 hover:bg-black/5 dark:hover:bg-white/10"
+          (click)="closeNav()"
+        >
+          总览
+        </a>
+        <span class="rounded-md px-3 py-2 text-[var(--y2-muted)] line-through" title="待开发">用户</span>
+        <span class="rounded-md px-3 py-2 text-[var(--y2-muted)] line-through" title="待开发">角色</span>
+        <span class="rounded-md px-3 py-2 text-[var(--y2-muted)] line-through" title="待开发">设备</span>
+      </nav>
+    </aside>
+
+    <main class="min-h-0 flex-1 overflow-auto p-4">
+      <router-outlet />
+    </main>
+  </div>
+</div>

@@ -6,7 +6,11 @@
     "outDir": "./out-tsc/spec",
     "types": [
       "jasmine"
-    ]
+    ],
+    "baseUrl": ".",
+    "paths": {
+      "@y2/shared": ["../../packages/shared/src/index.ts"]
+    }
   },
   "include": [
     "src/**/*.ts"
