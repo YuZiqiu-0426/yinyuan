@@ -3,7 +3,7 @@ import { isAxiosError } from '@y2/shared';
 import { catchError, Observable, switchMap, take, throwError } from 'rxjs';
 import type { AuthApiService } from './auth-api.service';
 import type { WebSessionPayload } from './auth-api.types';
-import { WEB_LOGIN_PATH, WEB_REFRESH_PATH } from './auth-api.types';
+import { WEB_LOGIN_PATH, WEB_MFA_VERIFY_PATH, WEB_REFRESH_PATH } from './auth-api.types';
 import type { AuthSessionService } from './auth-session.service';
 
 function isAuthRefreshRequest(req: Y2InternalRequest): boolean {
@@ -14,9 +14,13 @@ function isAuthLoginRequest(req: Y2InternalRequest): boolean {
   return req.method === 'POST' && req.url === WEB_LOGIN_PATH;
 }
 
+function isAuthMfaVerifyRequest(req: Y2InternalRequest): boolean {
+  return req.method === 'POST' && req.url === WEB_MFA_VERIFY_PATH;
+}
+
 export function createBearerInterceptor(auth: AuthSessionService): Y2HttpInterceptorFn {
   return (req, next) => {
-    if (isAuthLoginRequest(req)) {
+    if (isAuthLoginRequest(req) || isAuthMfaVerifyRequest(req)) {
       return next(req);
     }
     const token = auth.getAccessToken();
@@ -47,7 +51,11 @@ function run401Aware(
       if (!isAxiosError(err) || err.response?.status !== 401) {
         return throwError(() => err);
       }
-      if (isAuthRefreshRequest(req) || isAuthLoginRequest(req)) {
+      if (
+        isAuthRefreshRequest(req) ||
+        isAuthLoginRequest(req) ||
+        isAuthMfaVerifyRequest(req)
+      ) {
         return throwError(() => err);
       }
       if (alreadyRetried || !auth.getAccessToken()) {

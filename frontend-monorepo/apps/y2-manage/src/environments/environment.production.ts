@@ -7,4 +7,5 @@ export const environment: AppEnvironment = {
   devBypassAuth: false,
   useAuthMock: false,
   devCsrfToken: '',
+  refreshSkewSeconds: 60,
 };

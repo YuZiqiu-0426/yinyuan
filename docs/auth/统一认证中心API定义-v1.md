@@ -47,6 +47,41 @@
 说明：
 - Refresh Token 通过 HttpOnly Cookie 下发，仅 Web 使用。
 
+### 3.1.1 Web 登录 — MFA 二次校验
+
+当用户密码正确且账户策略要求 MFA（如 `super_admin` / 部分 `group_admin`）时，**不**在第一步返回 `accessToken`，而是返回需二次校验的票据：
+
+响应（HTTP 200，`code` 非 `OK`）：
+
+```json
+{
+  "code": "AUTH_MFA_REQUIRED",
+  "data": {
+    "mfaTicket": "mfa_xxx",
+    "expiresInSeconds": 300
+  },
+  "message": "需要完成二次验证",
+  "requestId": "req_xxx"
+}
+```
+
+`POST /auth/web/mfa/verify`
+
+请求：
+
+```json
+{
+  "mfaTicket": "mfa_xxx",
+  "totpCode": "123456"
+}
+```
+
+响应：与密码登录成功相同（`code: "OK"`，`data` 含 `accessToken`、`expiresIn`、`sessionId`、`sessionState`）。
+
+说明：
+- `mfaTicket` 为短时一次性票据，过期后须重新从 `/auth/web/login` 获取。
+- 客户端应在完成 MFA 前避免整页刷新导致票据丢失（若仅内存持有）。
+
 ## 3.2 Web 刷新
 
 `POST /auth/web/refresh`
@@ -214,6 +249,9 @@
 - `AUTH_GROUP_SCOPE_DENIED`
 - `AUTH_CSRF_INVALID`
 - `AUTH_RISK_REVOKED`
+- `AUTH_MFA_REQUIRED`（登录第一步：需继续调用 `/auth/web/mfa/verify`）
+- `AUTH_MFA_INVALID`
+- `AUTH_MFA_EXPIRED`
 
 ## 7. 说明
 

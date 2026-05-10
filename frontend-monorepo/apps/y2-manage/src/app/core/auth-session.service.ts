@@ -8,6 +8,10 @@ export class AuthSessionService {
   private readonly token = signal<string | null>(null);
   private readonly sessionId = signal<string | null>(null);
   private readonly accessExpiresAtMs = signal<number | null>(null);
+  private readonly mfaTicket = signal<string | null>(null);
+
+  /** 供临期 refresh 的 `effect` 订阅。 */
+  readonly expiresAtMs = this.accessExpiresAtMs.asReadonly();
 
   readonly hasToken = computed(() => {
     const t = this.token();
@@ -18,6 +22,18 @@ export class AuthSessionService {
 
   getAccessToken(): string | null {
     return this.token();
+  }
+
+  getPendingMfaTicket(): string | null {
+    return this.mfaTicket();
+  }
+
+  setPendingMfaTicket(ticket: string): void {
+    this.mfaTicket.set(ticket);
+  }
+
+  clearPendingMfaTicket(): void {
+    this.mfaTicket.set(null);
   }
 
   /** 受保护路由：开发绕过或已写入 access token。 */
@@ -34,6 +50,7 @@ export class AuthSessionService {
     this.token.set(data.accessToken);
     this.sessionId.set(data.sessionId);
     this.accessExpiresAtMs.set(Date.now() + data.expiresIn * 1000);
+    this.mfaTicket.set(null);
   }
 
   setToken(value: string): void {
@@ -44,6 +61,7 @@ export class AuthSessionService {
     this.token.set(null);
     this.sessionId.set(null);
     this.accessExpiresAtMs.set(null);
+    this.mfaTicket.set(null);
   }
 
   logout(): void {

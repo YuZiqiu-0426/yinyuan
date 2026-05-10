@@ -13,4 +13,6 @@ export interface AppEnvironment {
    * Mock 或非 HttpOnly 场景占位；真实环境由服务端下发 CSRF 后写入（Phase 2+ 再接）。
    */
   devCsrfToken: string;
+  /** 临期主动 refresh：在 access 过期前多少秒触发（与 SessionRenewScheduler 一致）。 */
+  refreshSkewSeconds: number;
 }

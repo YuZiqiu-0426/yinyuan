@@ -14,6 +14,9 @@ const MESSAGES: Record<string, string> = {
   AUTH_GROUP_SCOPE_DENIED: '组范围校验失败。',
   AUTH_CSRF_INVALID: '安全校验失败（CSRF），请刷新页面后重试。',
   AUTH_RISK_REVOKED: '检测到高风险行为，会话已终止。',
+  AUTH_MFA_REQUIRED: '需要完成二次验证（TOTP）。',
+  AUTH_MFA_INVALID: '验证码不正确，请重试。',
+  AUTH_MFA_EXPIRED: '二次验证已过期，请返回上一步重新登录。',
 };
 
 export function mapAuthErrorCode(code: string | undefined, fallbackMessage?: string): string {
