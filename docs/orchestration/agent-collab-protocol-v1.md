@@ -1,7 +1,7 @@
 # agent-collab 协议 v1（应用层）
 
 > 版本：v1  
-> 状态：规范骨架（与实现里程碑见 `docs/任务清单-v2.md` 模块四 AC-*、模块六 OR-*）  
+> 状态：规范骨架（与实现里程碑见 `docs/product/任务清单-v2.md` 模块四 AC-*、模块六 OR-*）  
 > 变更记录：2026-05-10 初稿。
 
 ---
@@ -11,9 +11,9 @@
 `agent-collab-v1` 定义多 Agent 协作的**业务消息**形状与语义，运行在隐元 **y2m** 传输层之上。
 
 - **不修改** `y2m-common` 中的核心 `EventType` 枚举；业务扩展优先使用 **`EventType::Json`** 承载本协议载荷。
-- **编排状态机**（任务 PENDING→APPROVED 等）属于 **agent-orchestrator** 或等价进程，见 `docs/任务清单-v2.md` 模块六；**y2m-server** 保持消息中继与既有路由规则。
+- **编排状态机**（任务 PENDING→APPROVED 等）属于 **agent-orchestrator** 或等价进程，见 `docs/product/任务清单-v2.md` 模块六；**y2m-server** 保持消息中继与既有路由规则。
 
-关联阅读：[多Agent前端协作开发方案.md](../多Agent前端协作开发方案.md)（流程与角色）、[spectrum-vixen-banshee.md](../spectrum-vixen-banshee.md)（y2m 能力对照）。
+关联阅读：[多Agent前端协作开发方案.md](../strategy/多Agent前端协作开发方案.md)（流程与角色）、[spectrum-vixen-banshee.md](../strategy/spectrum-vixen-banshee.md)（y2m 能力对照）。
 
 ---
 
@@ -31,7 +31,7 @@
 | `payload` | `payload.content` | JSON 对象，业务体 |
 | `replyTo` | `payload.metadata.replyTo` | 字符串，指向父级 `requestId` 或业务消息 id |
 
-**广播语义**：`target.clientName` 为空且 `target.groupName` 为发送方所在组时，与同组 `text`/`json` 一致，向**除发送者外**的会话投递（以 `docs/当前实现说明.md` 为准）。
+**广播语义**：`target.clientName` 为空且 `target.groupName` 为发送方所在组时，与同组 `text`/`json` 一致，向**除发送者外**的会话投递（以 `docs/product/当前实现说明.md` 为准）。
 
 **原生事件复用**（推荐映射，减少重复造轮子）：
 
@@ -47,7 +47,7 @@
 
 ## 3. MessageType 枚举（字符串常量）
 
-与 [多Agent前端协作开发方案.md](../多Agent前端协作开发方案.md) 第三节对齐，线路上统一为下列字符串（区分大小写，建议全小写+冒号）。
+与 [多Agent前端协作开发方案.md](../strategy/多Agent前端协作开发方案.md) 第三节对齐，线路上统一为下列字符串（区分大小写，建议全小写+冒号）。
 
 **任务**：`task:create`、`task:assign`、`task:accept`、`task:reject`、`task:progress`、`task:complete`、`task:verify`、`task:approve`、`task:reject-fix`、`task:reassign`。
 
@@ -156,7 +156,7 @@
 
 ## 7. 安全与权限（占位）
 
-上线后由 `auth-service` 与 y2m `init` introspect 约束连接身份；扩展权限码见根目录 `agent.md`（`task.manage`、`shared_layer.lock` 等）。本 v1 规范不定义鉴权细节，见 `docs/权限矩阵与默认角色模板-v1.md` 后续版本。
+上线后由 `auth-service` 与 y2m `init` introspect 约束连接身份；扩展权限码见根目录 `agent.md`（`task.manage`、`shared_layer.lock` 等）。本 v1 规范不定义鉴权细节，见 `docs/auth/权限矩阵与默认角色模板-v1.md` 后续版本。
 
 ---
 
@@ -164,5 +164,5 @@
 
 | 里程碑 | 说明 |
 |--------|------|
-| M4（README） | `agent-collab` schema、Agent 包装器、共享层锁定等，任务见 `docs/任务清单-v2.md` |
+| M4（README） | `agent-collab` schema、Agent 包装器、共享层锁定等，任务见 `docs/product/任务清单-v2.md` |
 | AC-01～AC-06 | 本协议拆分任务；实现以代码与测试为准时可增补附录 `agent-collab-examples-v1.md` |

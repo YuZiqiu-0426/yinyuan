@@ -19,7 +19,7 @@ YinYuan/
 │   ├── src/                ← y2m CLI（init / run / send / chat）
 │   └── tests/              ← 进程内 e2e + CLI 进程 e2e
 ├── frontend-monorepo/      ← 前端 monorepo（仅管理端 y2-manage）
-├── docs/                   ← 设计、规范、进度、实现说明
+├── docs/                   ← 设计、规范、进度、实现说明（见 docs/README.md）
 ├── agent.md                ← 工程约定 + 仓库导航 + 构建/测试 + 架构（简体中文，仓库单一指南）
 └── README.md               ← 本文件（项目总入口）
 ```
@@ -56,41 +56,41 @@ cargo build --release
 
 | 文档 | 用途 | 优先级 |
 |------|------|--------|
-| [`docs/当前实现说明.md`](docs/当前实现说明.md) | **实现事实基线**——代码现在做了什么、还没做什么 | 🔴 最高 |
-| [`docs/工作进度.md`](docs/工作进度.md) | 任务状态总表（P0/P1/P2） | 🔴 最高 |
+| [`docs/product/当前实现说明.md`](docs/product/当前实现说明.md) | **实现事实基线**——代码现在做了什么、还没做什么 | 🔴 最高 |
+| [`docs/product/工作进度.md`](docs/product/工作进度.md) | 任务状态总表（P0/P1/P2） | 🔴 最高 |
 | [`agent.md`](agent.md) | 工程约定、Git/tmux/pnpm、仓库布局、`cargo`/测试入口、架构与安全导航（简体中文） | 🟡 高 |
 
-> **冲突规则**：若文档之间描述不一致，以 `当前实现说明.md` > `工作进度.md` > `agent.md` > 其他设计/API 文档为准。
+> **冲突规则**：若文档之间描述不一致，以 `docs/product/当前实现说明.md` > `docs/product/工作进度.md` > `agent.md` > 其他设计/API 文档为准。
 
 ### 项目方向
 
 | 文档 | 说明 |
 |------|------|
-| [`多Agent前端协作开发方案.md`](多Agent前端协作开发方案.md) | 多 Agent 协作架构：分层流水线、Socket 消息协议、任务状态机、共享层机制 |
-| [`docs/任务清单-v2.md`](docs/任务清单-v2.md) | 多 Agent 与编排路线：传输层、auth、agent-collab、编排器、管理端任务拆分与里程碑 |
-| [`docs/agent-collab-protocol-v1.md`](docs/agent-collab-protocol-v1.md) | `agent-collab-v1` 应用层协议：y2m `Json` 承载、MessageType、状态对照与示例消息 |
-| [`spectrum-vixen-banshee.md`](spectrum-vixen-banshee.md) | y2m-rs 胜任评估：传输层完全匹配，应用层需适配 `agent-collab` JSON schema |
+| [`docs/strategy/多Agent前端协作开发方案.md`](docs/strategy/多Agent前端协作开发方案.md) | 多 Agent 协作架构：分层流水线、Socket 消息协议、任务状态机、共享层机制 |
+| [`docs/product/任务清单-v2.md`](docs/product/任务清单-v2.md) | 多 Agent 与编排路线：传输层、auth、agent-collab、编排器、管理端任务拆分与里程碑 |
+| [`docs/orchestration/agent-collab-protocol-v1.md`](docs/orchestration/agent-collab-protocol-v1.md) | `agent-collab-v1` 应用层协议：y2m `Json` 承载、MessageType、状态对照与示例消息 |
+| [`docs/strategy/spectrum-vixen-banshee.md`](docs/strategy/spectrum-vixen-banshee.md) | y2m-rs 胜任评估：传输层完全匹配，应用层需适配 `agent-collab` JSON schema |
 
 ### 认证中心与安全（子导航）
 
-认证中心相关文档有独立导航：[`docs/文档导航-v1.md`](docs/文档导航-v1.md)。核心文档：
+认证中心相关文档有独立导航：[`docs/meta/文档导航-v1.md`](docs/meta/文档导航-v1.md)。核心文档：
 
 | 文档 | 说明 |
 |------|------|
-| [`docs/统一认证中心详细设计-v1.md`](docs/统一认证中心详细设计-v1.md) | auth-service 架构、JWT 会话、CLI 设备因子校验 |
-| [`docs/统一认证中心API定义-v1.md`](docs/统一认证中心API定义-v1.md) | Auth / Admin / Chat 鉴权 API 与错误码 |
-| [`docs/加密验证方案.md`](docs/加密验证方案.md) | 接入方式、密钥体系、TLS/mTLS、设备信任、审计告警 |
-| [`docs/权限矩阵与默认角色模板-v1.md`](docs/权限矩阵与默认角色模板-v1.md) | RBAC 角色（super_admin / group_admin / user）与原子权限 |
-| [`docs/配置与密钥管理规范-v1.md`](docs/配置与密钥管理规范-v1.md) | 环境变量、JWT 密钥轮换、安全基线 |
-| [`docs/统一认证中心攻击路径演练与验收清单-v1.md`](docs/统一认证中心攻击路径演练与验收清单-v1.md) | 10 条攻击路径演练（暴力破解、Token 重放、CSRF、设备伪造等） |
+| [`docs/auth/统一认证中心详细设计-v1.md`](docs/auth/统一认证中心详细设计-v1.md) | auth-service 架构、JWT 会话、CLI 设备因子校验 |
+| [`docs/auth/统一认证中心API定义-v1.md`](docs/auth/统一认证中心API定义-v1.md) | Auth / Admin / Chat 鉴权 API 与错误码 |
+| [`docs/auth/加密验证方案.md`](docs/auth/加密验证方案.md) | 接入方式、密钥体系、TLS/mTLS、设备信任、审计告警 |
+| [`docs/auth/权限矩阵与默认角色模板-v1.md`](docs/auth/权限矩阵与默认角色模板-v1.md) | RBAC 角色（super_admin / group_admin / user）与原子权限 |
+| [`docs/auth/配置与密钥管理规范-v1.md`](docs/auth/配置与密钥管理规范-v1.md) | 环境变量、JWT 密钥轮换、安全基线 |
+| [`docs/auth/统一认证中心攻击路径演练与验收清单-v1.md`](docs/auth/统一认证中心攻击路径演练与验收清单-v1.md) | 10 条攻击路径演练（暴力破解、Token 重放、CSRF、设备伪造等） |
 
 ### 运维与发布
 
 | 文档 | 说明 |
 |------|------|
-| [`编译部署文档.md`](编译部署文档.md) | 构建与部署笔记 |
-| [`docs/上线与回滚Runbook-v1.md`](docs/上线与回滚Runbook-v1.md) | 发布执行手册 |
-| [`使用手册.md`](使用手册.md) | 终端用户操作指南 |
+| [`docs/ops/编译部署文档.md`](docs/ops/编译部署文档.md) | 构建与部署笔记 |
+| [`docs/ops/上线与回滚Runbook-v1.md`](docs/ops/上线与回滚Runbook-v1.md) | 发布执行手册 |
+| [`docs/ops/使用手册.md`](docs/ops/使用手册.md) | 终端用户操作指南 |
 
 ---
 
@@ -101,7 +101,7 @@ cargo build --release
 | **M1** | 认证中心最小可用：Web/CLI 登录、token 刷新、会话吊销、CLI 设备审核流 | ⬜ |
 | **M2** | CLI 客户端鉴权闭环：`y2m` 完成设备因子登录，`text` 收发权限校验生效 | ⬜ |
 | **M3** | 管理端可用（`y2-manage`）：用户/角色/权限/设备审核页面、审计检索与导出 | ⬜ |
-| **M4** | 多 Agent 编排层：[`docs/agent-collab-protocol-v1.md`](docs/agent-collab-protocol-v1.md) 协议、`y2m agent` 包装器、编排器、共享层锁定（任务见 [`docs/任务清单-v2.md`](docs/任务清单-v2.md)） | ⬜ |
+| **M4** | 多 Agent 编排层：[`docs/orchestration/agent-collab-protocol-v1.md`](docs/orchestration/agent-collab-protocol-v1.md) 协议、`y2m agent` 包装器、编排器、共享层锁定（任务见 [`docs/product/任务清单-v2.md`](docs/product/任务清单-v2.md)） | ⬜ |
 
 ---
 

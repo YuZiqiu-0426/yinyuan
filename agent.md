@@ -8,12 +8,12 @@
 
 当多处描述不一致时，按以下顺序解释：
 
-1. **`docs/当前实现说明.md`** — 当前代码**事实基线**（已实现 / 未实现）。
-2. **`docs/工作进度.md`** — 任务状态与优先级总表。
+1. **`docs/product/当前实现说明.md`** — 当前代码**事实基线**（已实现 / 未实现）。
+2. **`docs/product/工作进度.md`** — 任务状态与优先级总表。
 3. **`agent.md`**（本文件）— 如何在仓库内工作、命令入口、架构概览、工程规则。
 4. **`docs/`** 下其他需求、设计、API、运维类文档。
 
-若本文件与 **`docs/当前实现说明.md`** 冲突，**以《当前实现说明》为准**，并尽快修正 **`agent.md`**。
+若本文件与 **`docs/product/当前实现说明.md`** 冲突，**以《当前实现说明》为准**，并尽快修正 **`agent.md`**。
 
 ---
 
@@ -48,20 +48,20 @@
 
 6. **仓库布局**：根目录以文档与协作为主；Rust 工作区在 **`y2m-rs/`**；前端应用在 **`frontend-monorepo/`**。
 7. **Rust 命令**：所有 **`cargo`** 在 **`y2m-rs/`** 下执行（或使用 `--manifest-path y2m-rs/Cargo.toml`）。仓库根**不是** Rust workspace 根。
-8. **实现描述**：以 **`docs/当前实现说明.md`** 为准描述「系统现在怎么做」。
-9. **排期与下一步**：优先查阅 **`docs/工作进度.md`**。
-10. **管理端与交互**：管理端 Web 为 **`frontend-monorepo/apps/y2-manage`**（Angular）。用户侧聊天 Web 已移除；用户交互为 **CLI-only**（**`y2m`**）。多 Agent 编排复用同一 WebSocket；业务消息可在 **`EventType::Json`** 之上承载 **`agent-collab`**（见 **`docs/agent-collab-protocol-v1.md`**）。
-11. **行为基线**：路由、重连、文件传输、测试预期等与 **`docs/当前实现说明.md`** 一致；若有意改变产品行为，须先更新《当前实现说明》再改实现。
+8. **实现描述**：以 **`docs/product/当前实现说明.md`** 为准描述「系统现在怎么做」。
+9. **排期与下一步**：优先查阅 **`docs/product/工作进度.md`**。
+10. **管理端与交互**：管理端 Web 为 **`frontend-monorepo/apps/y2-manage`**（Angular）。用户侧聊天 Web 已移除；用户交互为 **CLI-only**（**`y2m`**）。多 Agent 编排复用同一 WebSocket；业务消息可在 **`EventType::Json`** 之上承载 **`agent-collab`**（见 **`docs/orchestration/agent-collab-protocol-v1.md`**）。
+11. **行为基线**：路由、重连、文件传输、测试预期等与 **`docs/product/当前实现说明.md`** 一致；若有意改变产品行为，须先更新《当前实现说明》再改实现。
 
 ---
 
 ## 7. 流程约定
 
-12. **改动前阅读**：非琐碎改动前，阅读 **`docs/当前实现说明.md`**、**`docs/工作进度.md`** 及本文件相关章节（布局、命令、测试）。
-13. **以实装为准**：若设计稿或导航文与 **`docs/当前实现说明.md`** 矛盾，先对齐实现与《当前实现说明》。
+12. **改动前阅读**：非琐碎改动前，阅读 **`docs/product/当前实现说明.md`**、**`docs/product/工作进度.md`** 及本文件相关章节（布局、命令、测试）。
+13. **以实装为准**：若设计稿或导航文与 **`docs/product/当前实现说明.md`** 矛盾，先对齐实现与《当前实现说明》。
 14. **行为变更时的文档顺序**：
-    1. `docs/当前实现说明.md`
-    2. `docs/工作进度.md`
+    1. `docs/product/当前实现说明.md`
+    2. `docs/product/工作进度.md`
     3. **`agent.md`**（若命令、布局、测试分类或工程规则有变）
     4. 相关需求 / 设计 / API / Runbook
 15. **测试**：连贯代码改动后，先跑**最小必要**校验，风险或范围大时再跑全 workspace。
@@ -72,7 +72,7 @@
 ## 8. 本文件的引用关系
 
 - **Cursor**：**`.cursor/rules/yinyuan-conventions.mdc`** 指向本文件，供辅助会话加载同一套规则。
-- **安全与鉴权**：以 **`docs/`** 下专项为准（如 **`docs/加密验证方案.md`**、**`docs/权限矩阵与默认角色模板-v1.md`**）。若与旧需求（如 **`需求v1.md`**）冲突，**以安全类设计文档为准**。
+- **安全与鉴权**：以 **`docs/auth/`** 等专项为准（如 **`docs/auth/加密验证方案.md`**、**`docs/auth/权限矩阵与默认角色模板-v1.md`**）。若与旧需求（如 **`docs/requirements/需求v1.md`**）冲突，**以安全类设计文档为准**。
 
 ---
 
@@ -80,15 +80,16 @@
 
 Rust 工作区为 **`y2m-rs/`**。根目录常见设计/说明文档示例：
 
-- **`需求v1.md`** — 原始需求（v1）。
-- **`docs/当前实现说明.md`** — 实现状态；接新活前先读。
-- **`docs/加密验证方案.md`** — 传输加密、设备信任、IP 白名单、密钥生命周期。
-- **`docs/统一认证中心详细设计-v1.md`** — auth-service、JWT、CLI 设备因子等。
-- **`docs/统一认证中心API定义-v1.md`** — 鉴权 API 与错误码。
-- **`docs/权限矩阵与默认角色模板-v1.md`** — RBAC 与原子权限。
-- **`docs/配置与密钥管理规范-v1.md`** — 环境变量密钥、JWT 轮换、安全基线。
-- **`编译部署文档.md`** — 构建与部署笔记。
-- **`使用手册.md`** — 终端用户说明。
+- **`docs/README.md`** — `docs/` 子目录索引与必读入口。
+- **`docs/requirements/需求v1.md`** — 原始需求（v1）。
+- **`docs/product/当前实现说明.md`** — 实现状态；接新活前先读。
+- **`docs/auth/加密验证方案.md`** — 传输加密、设备信任、IP 白名单、密钥生命周期。
+- **`docs/auth/统一认证中心详细设计-v1.md`** — auth-service、JWT、CLI 设备因子等。
+- **`docs/auth/统一认证中心API定义-v1.md`** — 鉴权 API 与错误码。
+- **`docs/auth/权限矩阵与默认角色模板-v1.md`** — RBAC 与原子权限。
+- **`docs/auth/配置与密钥管理规范-v1.md`** — 环境变量密钥、JWT 轮换、安全基线。
+- **`docs/ops/编译部署文档.md`** — 构建与部署笔记。
+- **`docs/ops/使用手册.md`** — 终端用户说明。
 - **`y2m-rs/docs/quickstart.md`** — 起服务与 CLI 的快速上手。
 
 ---
@@ -148,7 +149,7 @@ y2m-rs/
 
 ### 12.2 服务端（`crates/server`）
 
-**`ws.rs`**：axum WebSocket；**`init::handle_init`** 校验 init、拒绝同组重名、返回 **`init_ack`**。**`router.rs`**：**`text` / `json` / `command` / `command_result` / 全部 `file_*`** 支持**单播**（填写 **`target.clientName`**）或**组播**（省略 **`clientName`**，同组除发送者外，见 **`docs/当前实现说明.md`** §3.2）。**`session.rs`**：**`SessionStore`**。**`transfer.rs`**：**`TransferRegistry`**；**二进制分片**仅在对应接收腿 **`file_accept`** 后转发。心跳超时关连接并释放名称。
+**`ws.rs`**：axum WebSocket；**`init::handle_init`** 校验 init、拒绝同组重名、返回 **`init_ack`**。**`router.rs`**：**`text` / `json` / `command` / `command_result` / 全部 `file_*`** 支持**单播**（填写 **`target.clientName`**）或**组播**（省略 **`clientName`**，同组除发送者外，见 **`docs/product/当前实现说明.md`** §3.2）。**`session.rs`**：**`SessionStore`**。**`transfer.rs`**：**`TransferRegistry`**；**二进制分片**仅在对应接收腿 **`file_accept`** 后转发。心跳超时关连接并释放名称。
 
 ### 12.3 客户端核心（`crates/client-core`）
 
@@ -156,7 +157,7 @@ y2m-rs/
 
 ### 12.4 CLI（`src/`）
 
-薄封装：**`cli.rs`**、各 **`cmd_*.rs`**、**`plugin.rs`**（**`ConsolePlugin`**）、**`state/`**、**`file_store.rs`**、**`file_flow.rs`**。本地文件态统一 **`LocalFileStore` / `LocalFileTransfer` / `LocalFileState`**；扩展状态机时继续使用 **`move_to_incoming()`** / **`transition_to()`** 的结构化错误风格。**`main.rs::connect_with_console_plugin_with_retry`** 服务 **`run` / `chat`** 重连、清理文件态、**`reconnect_replays`**，见 **`docs/当前实现说明.md`** §3.5。
+薄封装：**`cli.rs`**、各 **`cmd_*.rs`**、**`plugin.rs`**（**`ConsolePlugin`**）、**`state/`**、**`file_store.rs`**、**`file_flow.rs`**。本地文件态统一 **`LocalFileStore` / `LocalFileTransfer` / `LocalFileState`**；扩展状态机时继续使用 **`move_to_incoming()`** / **`transition_to()`** 的结构化错误风格。**`main.rs::connect_with_console_plugin_with_retry`** 服务 **`run` / `chat`** 重连、清理文件态、**`reconnect_replays`**，见 **`docs/product/当前实现说明.md`** §3.5。
 
 ### 12.5 安全与鉴权（导航摘要）
 
@@ -165,7 +166,7 @@ y2m-rs/
 - **RBAC** 与 **`EventType`** 对应（如 **`text.send`** 等）；后续可扩展 **`task.manage`**、**`shared_layer.lock`** 等。
 - **CLI 设备信任**：指纹含 MAC、IP、OS 用户等；首登待审；后续信任 token。
 - **会话态**：**`active` / `suspended_readonly` / `revoked`**；**`revoked`** 须立即断链。
-- **TLS**：跨机 **`wss://`**；本机开发可用 **`ws://`** 访问 **`127.0.0.1`**。详见 **`docs/加密验证方案.md`**。
+- **TLS**：跨机 **`wss://`**；本机开发可用 **`ws://`** 访问 **`127.0.0.1`**。详见 **`docs/auth/加密验证方案.md`**。
 
 ### 12.6 跨平台命令执行
 

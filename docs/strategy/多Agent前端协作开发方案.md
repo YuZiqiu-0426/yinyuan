@@ -88,13 +88,13 @@ Claude: 合并 + 验收 + 优化
 
 ### 传输层（默认 y2m）
 
-- **默认承载**为隐元 **`y2m-server` WebSocket** + v3 JSON 控制面；多 Agent 同组内通信可复用 **`EventType::Json`** 承载业务消息，字段映射与消息类型见 [`docs/agent-collab-protocol-v1.md`](docs/agent-collab-protocol-v1.md)。
+- **默认承载**为隐元 **`y2m-server` WebSocket** + v3 JSON 控制面；多 Agent 同组内通信可复用 **`EventType::Json`** 承载业务消息，字段映射与消息类型见 [`../orchestration/agent-collab-protocol-v1.md`](../orchestration/agent-collab-protocol-v1.md)。
 - 下文第七节中的 `socket.emit` / `io('ws://…')` 表示**与 Socket.IO 在语义上等价**的「发布—订阅、房间、事件名」模型；**实现上不强制**使用 Socket.IO，推荐使用 `y2m-client-core` 或后续 `y2m agent` 子命令连接同一 relay。
-- 文件字节、远程命令执行等仍优先映射到 y2m 原生 **`file_*` / `command` / `command_result`**，避免重复定义二进制帧与 shell 语义。能力对照见 [`spectrum-vixen-banshee.md`](spectrum-vixen-banshee.md)。
+- 文件字节、远程命令执行等仍优先映射到 y2m 原生 **`file_*` / `command` / `command_result`**，避免重复定义二进制帧与 shell 语义。能力对照见 [`./spectrum-vixen-banshee.md`](./spectrum-vixen-banshee.md)。
 
 ### 编排层（agent-orchestrator）
 
-- **任务状态机、调度评分、共享层 checksum 校验**等放在 **agent-orchestrator**（独立进程或独立 crate），经 WebSocket 与 `y2m-server` 收发消息；**不把**状态机硬塞进 `y2m-server` 核心路由。详见 [`docs/任务清单-v2.md`](docs/任务清单-v2.md) 模块六（OR-*）与 OR-09。
+- **任务状态机、调度评分、共享层 checksum 校验**等放在 **agent-orchestrator**（独立进程或独立 crate），经 WebSocket 与 `y2m-server` 收发消息；**不把**状态机硬塞进 `y2m-server` 核心路由。详见 [`../product/任务清单-v2.md`](../product/任务清单-v2.md) 模块六（OR-*）与 OR-09。
 
 ### 双 Router（Claude + Kimi）决策规则
 
@@ -105,7 +105,7 @@ Claude: 合并 + 验收 + 优化
 
 ### 仓库路径与 Windows / monorepo
 
-- 管理端 Web 应用目录为 **`frontend-monorepo/apps/y2-manage`**（Angular）；包管理使用 **pnpm**，与仓库根 [`agent.md`](agent.md) 中 pnpm 约定一致。
+- 管理端 Web 应用目录为 **`frontend-monorepo/apps/y2-manage`**（Angular）；包管理使用 **pnpm**，与仓库根 [`../../agent.md`](../../agent.md) 中 pnpm 约定一致。
 - 第八节目录与 `start-agents.sh` 为 **Unix 示意**；在 **Windows** 上需改用 PowerShell 或 WSL、注意路径分隔符与后台进程启动方式；多 worktree 与 monorepo 并存时，避免多个应用根各自重复安装依赖，建议以 **monorepo 根** 为唯一 `pnpm install` 入口。
 
 ---
@@ -114,7 +114,7 @@ Claude: 合并 + 验收 + 优化
 
 ### 3.1 Socket消息协议
 
-> **实现提示**：线路上推荐使用 y2m `EventPacket`（`json` 事件 + `metadata.messageType`），见 `docs/agent-collab-protocol-v1.md`；下表为与实现对齐的逻辑类型定义。
+> **实现提示**：线路上推荐使用 y2m `EventPacket`（`json` 事件 + `metadata.messageType`），见 `docs/orchestration/agent-collab-protocol-v1.md`；下表为与实现对齐的逻辑类型定义。
 
 ```typescript
 // 基础消息结构
@@ -651,4 +651,4 @@ Round 4: 需求变更
 *文档生成时间: 2026-05-06*  
 *基于多轮对话整理*
 
-**关联仓库文档**：[`docs/agent-collab-protocol-v1.md`](docs/agent-collab-protocol-v1.md)（应用层协议 v1）、[`docs/任务清单-v2.md`](docs/任务清单-v2.md)（实现任务与里程碑）、[`spectrum-vixen-banshee.md`](spectrum-vixen-banshee.md)（y2m 能力评估与映射建议）。
+**关联仓库文档**：[`../orchestration/agent-collab-protocol-v1.md`](../orchestration/agent-collab-protocol-v1.md)（应用层协议 v1）、[`../product/任务清单-v2.md`](../product/任务清单-v2.md)（实现任务与里程碑）、[`./spectrum-vixen-banshee.md`](./spectrum-vixen-banshee.md)（y2m 能力评估与映射建议）。
