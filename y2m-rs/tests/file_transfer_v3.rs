@@ -6,7 +6,7 @@ use y2m_client_core::{
     build_ack_packet, build_file_abort_event_packet, build_file_accept_event_packet,
     build_file_complete_event_packet, build_file_offer_event_packet,
 };
-use y2m_common::{AckStatus, BinaryChunkHeader, EventType, PacketKind};
+use y2m_common::{AckStatus, BinaryChunkHeader, ErrorCode, EventType, PacketKind};
 
 mod support;
 
@@ -98,6 +98,153 @@ async fn file_binary_chunk_forwarding_end_to_end() -> anyhow::Result<()> {
 
     let received = bob_runtime.recv_binary_frame().await.expect("binary frame");
     assert_eq!(received, chunk);
+
+    server_task.abort();
+    Ok(())
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 4)]
+#[serial_test::serial]
+async fn file_binary_chunk_frame_too_short_is_error() -> anyhow::Result<()> {
+    let (server_task, server_url) = spawn_server().await?;
+
+    let mut alice_runtime = connect_runtime(server_url.clone(), "group1", "alice", vec![]).await?;
+    let mut bob_runtime = connect_runtime(server_url.clone(), "group1", "bob", vec![]).await?;
+
+    let file_id = Uuid::new_v4();
+    let offer_packet = build_file_offer_event_packet(
+        alice_runtime.identity(),
+        Some("group1".to_string()),
+        Some("bob".to_string()),
+        file_id,
+        "short.bin",
+        4,
+        "application/octet-stream",
+        "short-sha",
+        4,
+        1,
+    );
+    alice_runtime.connection().send_json_packet(&offer_packet)?;
+
+    let offered = bob_runtime.recv_next_packet().await.expect("file offer");
+    match offered {
+        y2m_client_core::IncomingServerPacket::Event(event) => {
+            assert_eq!(event.payload.event_type, EventType::FileOffer);
+        }
+        packet => panic!("unexpected packet: {packet:?}"),
+    }
+
+    let accept_packet = build_file_accept_event_packet(
+        bob_runtime.identity(),
+        Some("group1".to_string()),
+        Some("alice".to_string()),
+        file_id,
+        "./downloads/short.bin",
+    );
+    bob_runtime.connection().send_json_packet(&accept_packet)?;
+    tokio::time::sleep(std::time::Duration::from_millis(100)).await;
+
+    let accept_to_alice = alice_runtime.recv_next_packet().await.expect("file accept relay");
+    match accept_to_alice {
+        y2m_client_core::IncomingServerPacket::Event(e) => {
+            assert_eq!(e.payload.event_type, EventType::FileAccept);
+        }
+        p => panic!("expected FileAccept on sender after accept, got {p:?}"),
+    }
+
+    alice_runtime.connection().send_binary(vec![0u8; 8])?;
+
+    let err_packet = tokio::time::timeout(std::time::Duration::from_secs(2), alice_runtime.recv_next_packet())
+        .await?
+        .expect("channel closed");
+    match err_packet {
+        y2m_client_core::IncomingServerPacket::Error(packet) => {
+            assert_eq!(packet.payload.code, ErrorCode::InvalidMessage);
+        }
+        packet => panic!("expected error packet, got {packet:?}"),
+    }
+
+    let bob_binary = tokio::time::timeout(std::time::Duration::from_millis(300), bob_runtime.recv_binary_frame()).await;
+    assert!(
+        bob_binary.is_err(),
+        "receiver should not get binary for invalid frame"
+    );
+
+    server_task.abort();
+    Ok(())
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 4)]
+#[serial_test::serial]
+async fn file_binary_chunk_payload_length_mismatch_is_error() -> anyhow::Result<()> {
+    let (server_task, server_url) = spawn_server().await?;
+
+    let mut alice_runtime = connect_runtime(server_url.clone(), "group1", "alice", vec![]).await?;
+    let mut bob_runtime = connect_runtime(server_url.clone(), "group1", "bob", vec![]).await?;
+
+    let file_id = Uuid::new_v4();
+    let offer_packet = build_file_offer_event_packet(
+        alice_runtime.identity(),
+        Some("group1".to_string()),
+        Some("bob".to_string()),
+        file_id,
+        "mismatch.bin",
+        4,
+        "application/octet-stream",
+        "mismatch-sha",
+        4,
+        1,
+    );
+    alice_runtime.connection().send_json_packet(&offer_packet)?;
+
+    let offered = bob_runtime.recv_next_packet().await.expect("file offer");
+    match offered {
+        y2m_client_core::IncomingServerPacket::Event(event) => {
+            assert_eq!(event.payload.event_type, EventType::FileOffer);
+        }
+        packet => panic!("unexpected packet: {packet:?}"),
+    }
+
+    let accept_packet = build_file_accept_event_packet(
+        bob_runtime.identity(),
+        Some("group1".to_string()),
+        Some("alice".to_string()),
+        file_id,
+        "./downloads/mismatch.bin",
+    );
+    bob_runtime.connection().send_json_packet(&accept_packet)?;
+    tokio::time::sleep(std::time::Duration::from_millis(100)).await;
+
+    let accept_to_alice = alice_runtime.recv_next_packet().await.expect("file accept relay");
+    match accept_to_alice {
+        y2m_client_core::IncomingServerPacket::Event(e) => {
+            assert_eq!(e.payload.event_type, EventType::FileAccept);
+        }
+        p => panic!("expected FileAccept on sender after accept, got {p:?}"),
+    }
+
+    let bad_chunk = BinaryChunkHeader::new(file_id, 0, 1, 999).encode_with_payload(b"xx");
+    assert!(
+        BinaryChunkHeader::decode(&bad_chunk).is_none(),
+        "fixture should not decode as valid chunk"
+    );
+    alice_runtime.connection().send_binary(bad_chunk)?;
+
+    let err_packet = tokio::time::timeout(std::time::Duration::from_secs(2), alice_runtime.recv_next_packet())
+        .await?
+        .expect("channel closed");
+    match err_packet {
+        y2m_client_core::IncomingServerPacket::Error(packet) => {
+            assert_eq!(packet.payload.code, ErrorCode::InvalidMessage);
+        }
+        packet => panic!("expected error packet, got {packet:?}"),
+    }
+
+    let bob_binary = tokio::time::timeout(std::time::Duration::from_millis(300), bob_runtime.recv_binary_frame()).await;
+    assert!(
+        bob_binary.is_err(),
+        "receiver should not get binary for invalid frame"
+    );
 
     server_task.abort();
     Ok(())
