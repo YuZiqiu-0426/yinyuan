@@ -33,6 +33,8 @@ pub(crate) struct InitArgs {
     pub(crate) token: Option<String>,
     #[arg(long)]
     pub(crate) heartbeat_interval: Option<u64>,
+    #[arg(long, help = "y2m send command 默认等待超时（秒），可被 send command --timeout 覆盖")]
+    pub(crate) command_wait_timeout: Option<u64>,
     #[arg(long)]
     pub(crate) download_dir: Option<PathBuf>,
 }
@@ -85,8 +87,11 @@ pub(crate) struct CommandArgs {
     pub(crate) to: Option<String>,
     #[arg(long)]
     pub(crate) group: Option<String>,
-    #[arg(long, default_value_t = 30)]
-    pub(crate) timeout: u64,
+    #[arg(
+        long,
+        help = "等待 command_result 的超时秒数；未指定时用配置 commandWaitTimeoutSec，否则 30"
+    )]
+    pub(crate) timeout: Option<u64>,
     pub(crate) command: String,
 }
 

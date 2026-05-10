@@ -47,12 +47,17 @@ async fn run_send_json(config: Option<std::path::PathBuf>, args: JsonArgs) -> an
 async fn run_send_command(config: Option<std::path::PathBuf>, args: CommandArgs) -> anyhow::Result<()> {
     let config_path = resolve_config_path(config);
     let config = load_or_default_config(&config_path)?;
+    let wait_secs = args
+        .timeout
+        .or(config.command_wait_timeout_sec)
+        .unwrap_or(30)
+        .max(1);
     let (mut runtime, state) = crate::connect_with_console_plugin(config, None).await?;
-    runtime.send_command(args.group.clone(), args.to.clone(), args.command.clone(), Some(args.timeout))?;
+    runtime.send_command(args.group.clone(), args.to.clone(), args.command.clone(), Some(wait_secs))?;
     let group = args.group.unwrap_or_else(|| runtime.identity().group_name.clone());
     let target = args.to.unwrap_or_else(|| "*".to_string());
     println!("已发送命令到 [{group}][{target}]");
-    wait_for_command_result(&mut runtime, &state, args.timeout).await?;
+    wait_for_command_result(&mut runtime, &state, wait_secs).await?;
     Ok(())
 }
 

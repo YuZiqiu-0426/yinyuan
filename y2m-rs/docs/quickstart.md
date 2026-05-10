@@ -200,6 +200,8 @@ Bob 看到：
 
 # 远程执行命令
 ./target/release/y2m send --config alice.json command --to bob "ls -la"
+# 等待 `command_result` 的超时：`--timeout <秒>` 优先，否则用配置里的 `commandWaitTimeoutSec`，再否则默认 30。
+# 可在 `y2m init --command-wait-timeout 60` 写入配置，或对单次命令：`... command --timeout 60 --to bob "slow"`
 
 # 发送文件
 ./target/release/y2m send --config alice.json file --to bob /path/to/file.txt

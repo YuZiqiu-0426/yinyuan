@@ -12,6 +12,9 @@ pub(crate) async fn run_init(args: InitArgs) -> anyhow::Result<()> {
     if let Some(client) = args.client { config.client_name = Some(client); }
     if let Some(token) = args.token { config.token = Some(token); }
     if let Some(interval) = args.heartbeat_interval { config.heartbeat_interval_override_sec = Some(interval); }
+    if let Some(sec) = args.command_wait_timeout {
+        config.command_wait_timeout_sec = Some(sec);
+    }
     if let Some(dir) = args.download_dir { config.download_dir = Some(dir); }
 
     config.save_to_path(&config_path)?;

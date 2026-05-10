@@ -14,6 +14,8 @@ pub struct ClientConfig {
     pub client_name: Option<String>,
     pub token: Option<String>,
     pub heartbeat_interval_override_sec: Option<u64>,
+    /// `y2m send command` 未指定 `--timeout` 时的默认等待秒数（与协议 metadata `timeoutSec` 一致）。
+    pub command_wait_timeout_sec: Option<u64>,
     pub download_dir: Option<PathBuf>,
 }
 
@@ -25,6 +27,7 @@ impl Default for ClientConfig {
             client_name: None,
             token: None,
             heartbeat_interval_override_sec: None,
+            command_wait_timeout_sec: None,
             download_dir: None,
         }
     }
