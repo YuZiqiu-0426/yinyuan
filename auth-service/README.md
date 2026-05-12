@@ -43,7 +43,7 @@ curl http://127.0.0.1:8090/health
 - **本机安装** PostgreSQL / Redis；或  
 - **Docker Compose** 起官方镜像（与任务清单 **INF-01** 一类联调环境对齐，便于团队同版本）。
 
-迁移目录等约定可参考 [`docs/product/任务清单-v1.md`](../docs/product/任务清单-v1.md) 模块二说明（实现时再落地）。
+迁移目录与 DB 子清单见 **[`docs/product/任务清单-v2.md`](../docs/product/任务清单-v2.md)**（**模块二 · 数据库迁移拆解**）；表结构细节见 [`docs/auth/数据库设计与迁移方案-v1.md`](../docs/auth/数据库设计与迁移方案-v1.md)。（[`任务清单-v1.md`](../docs/product/任务清单-v1.md) 已废弃，勿作排期依据。）
 
 ## 后续
 

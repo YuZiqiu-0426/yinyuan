@@ -86,6 +86,7 @@ Rust：**`y2m-rs/`** 为 relay/CLI 等 workspace；**`auth-service/`** 为独立
 - **`docs/README.md`** — `docs/` 子目录索引与必读入口。
 - **`docs/requirements/需求v1.md`** — 原始需求（v1）。
 - **`docs/product/当前实现说明.md`** — 实现状态；接新活前先读。
+- **`docs/product/全仓后续推进计划-v1.md`** — 跨 **`auth-service` / `y2-manage` / `y2m-rs`** 的推荐推进顺序（阶段 A～D）。
 - **`docs/auth/加密验证方案.md`** — 传输加密、设备信任、IP 白名单、密钥生命周期。
 - **`docs/auth/统一认证中心详细设计-v1.md`** — auth-service、JWT、CLI 设备因子等。
 - **`docs/auth/统一认证中心API定义-v1.md`** — 鉴权 API 与错误码。
