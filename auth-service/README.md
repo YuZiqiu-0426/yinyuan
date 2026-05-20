@@ -34,9 +34,34 @@ curl http://127.0.0.1:8090/health
 
 根路径 **`GET /`** 返回纯文本服务名与版本，便于浏览器快速辨认。
 
+## 阶段 A：最小 Web 认证 Stub
+
+当前已提供与 [`docs/auth/统一认证中心API定义-v1.md`](../docs/auth/统一认证中心API定义-v1.md) 对齐的最小 HTTP stub，便于 `y2-manage` 关闭 Mock 后本地联调：
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| `POST` | `/api/v1/auth/web/login` | 密码登录；`password == "wrong"` 返回 `AUTH_INVALID_CREDENTIALS` |
+| `POST` | `/api/v1/auth/web/mfa/verify` | MFA 二次校验；固定验证码 `123456` |
+| `POST` | `/api/v1/auth/web/refresh` | 刷新 access token；需携带 `X-CSRF-Token` |
+
+Stub 规则：
+
+- `username` 为 `superadmin` 或 `groupadmin` 时，登录返回 `AUTH_MFA_REQUIRED` 与 `mfaTicket`。
+- 其他用户名只要密码不是 `wrong`，直接返回 `{ code: "OK", data: { accessToken, expiresIn, sessionId, sessionState } }`。
+- 当前 token / session 均为可预测的 stub 字符串，不做数据库、Redis、JWT 签名或真实密码校验。
+- CORS 允许 `http://localhost:4200` 与 `http://127.0.0.1:4200`，并允许 credentials，供 Angular dev server 联调。
+
+`y2-manage` 本地联调时，可临时把 `frontend-monorepo/apps/y2-manage/src/environments/environment.development.ts` 调整为：
+
+```ts
+apiBaseUrl: 'http://127.0.0.1:8090',
+useAuthMock: false,
+devCsrfToken: 'dev-mock-csrf',
+```
+
 ## PostgreSQL / Redis 要不要先装？
 
-**当前架子不用。** 本工程尚未依赖 SQLx、Redis 客户端；本地只需 **Rust 工具链**即可编译运行。
+**当前阶段 A 不用。** 本工程尚未依赖 SQLx、Redis 客户端；本地只需 **Rust 工具链**即可编译运行。
 
 接入持久化与会话缓存时（见设计文档 §3），再任选其一即可：
 
@@ -47,4 +72,4 @@ curl http://127.0.0.1:8090/health
 
 ## 后续
 
-数据库、Redis、JWT、真实 **`/api/v1/auth/web/*`** 路由等按设计文档分阶段接入；当前 crate **不**包含 SQLx 或迁移脚本。
+数据库、Redis、JWT、真实密码校验与持久化会话等按设计文档分阶段接入；当前 crate **不**包含 SQLx 或迁移脚本。
